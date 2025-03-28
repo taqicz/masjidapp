@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,30 +38,24 @@ public class MainActivity extends AppCompatActivity {
         setupEventsRecyclerView();
         setupMosquesRecyclerView();
 
-        // Setup bottom navigation
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.nav_home:
-                        // Already on home
-                        return true;
-                    case R.id.nav_search:
-                        // Navigate to search
-                        Toast.makeText(MainActivity.this, "Pencarian", Toast.LENGTH_SHORT).show();
-                        return true;
-                    case R.id.nav_events:
-                        // Navigate to events
-                        Toast.makeText(MainActivity.this, "Event", Toast.LENGTH_SHORT).show();
-                        return true;
-                    case R.id.nav_profile:
-                        // Navigate to profile
-                        Toast.makeText(MainActivity.this, "Profil", Toast.LENGTH_SHORT).show();
-                        return true;
-                }
-                return false;
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                // Already on home
+                return true;
+            } else if (itemId == R.id.nav_search) {
+                Toast.makeText(MainActivity.this, "Pencarian", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (itemId == R.id.nav_events) {
+                Toast.makeText(MainActivity.this, "Event", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                Toast.makeText(MainActivity.this, "Profil", Toast.LENGTH_SHORT).show();
+                return true;
             }
+            return false;
         });
+
 
         // Setup notification FAB
         notificationFab.setOnClickListener(view -> {
