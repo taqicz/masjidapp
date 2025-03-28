@@ -1,11 +1,13 @@
 package com.example.masjidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -56,6 +58,14 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        // Inisialisasi view
+        CardView prayerTimeCard = findViewById(R.id.prayerTimeCard);
+
+        // Event klik untuk membuka PrayerTimeDetailActivity
+        prayerTimeCard.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, PrayerTimeDetailActivity.class);
+            startActivity(intent);
+        });
 
         // Setup notification FAB
         notificationFab.setOnClickListener(view -> {
@@ -99,4 +109,3 @@ public class MainActivity extends AppCompatActivity {
         mosquesRecyclerView.setAdapter(mosqueAdapter);
     }
 }
-

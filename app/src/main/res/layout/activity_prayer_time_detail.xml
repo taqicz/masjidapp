@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PrayerTimeDetailActivity"
+    android:background="@drawable/background_gradient">
+
+    <LinearLayout
+        android:id="@+id/header_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="24sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        <TextView
+            android:id="@+id/sholat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sholat"
+            android:textSize="28sp"
+            android:textColor="@color/white"
+            android:layout_marginTop="24sp"
+            android:layout_marginStart="24sp">
+        </TextView>
+        <TextView
+            android:id="@+id/kota"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kota Malang, Indonesia"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:layout_marginStart="24sp">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="14sp"
+        app:layout_constraintTop_toBottomOf="@+id/header_title"
+        android:gravity="center_vertical">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28sp"
+            android:src="@drawable/arrowkiri"
+            android:background="@android:color/transparent"/>
+
+        <!-- LinearLayout untuk menampung 2 TextView (hari dan hari Islam) -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/hari"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jumat, 28 Maret"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/hari_islam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="28 Ramadhan"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:gravity="center"/>
+        </LinearLayout>
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/arrowkanan"
+            android:layout_marginEnd="28sp"
+            android:background="@android:color/transparent"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/adzan_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        android:layout_marginTop="36sp"
+        android:layout_marginStart="24sp"
+        android:layout_marginEnd="24sp">
+
+        <!-- Baris waktu salat -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Nama Salat -->
+            <LinearLayout
+                android:id="@+id/adzan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/imsak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Imsak"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/subuh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subuh"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/dhuhur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dhuhur"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/ashar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ashar"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/maghrib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Maghrib"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/isya"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Isya"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <!-- Waktu tersisa -->
+            <LinearLayout
+                android:id="@+id/waktu_selanjutnya_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/waktu_selanjutnya"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00:00"
+                    android:textSize="24sp"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"/>
+            </LinearLayout>
+
+            <!-- Waktu Adzan -->
+            <LinearLayout
+                android:id="@+id/waktu_adzan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <TextView
+                    android:id="@+id/waktu_imsak"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="04.08"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/waktu_subuh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="04.18"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/waktu_dhuhur"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="11.38"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/waktu_ashar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14.53"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/waktu_maghrib"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="17.39"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/waktu_isya"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18.48"
+                    android:textColor="@color/white"
+                    android:layout_marginBottom="24sp"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:menu="@menu/bottom_navigation_menu"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
