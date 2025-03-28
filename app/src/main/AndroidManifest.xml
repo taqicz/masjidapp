@@ -36,6 +36,10 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
+        <activity
+            android:name=".ListMasjidActivity"
+            android:exported="false"/>
+
     </application>
 
 </manifest>

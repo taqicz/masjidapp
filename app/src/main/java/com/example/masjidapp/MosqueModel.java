@@ -5,12 +5,15 @@ public class MosqueModel {
     private String address;
     private float rating;
     private String distance;
+    private String imageUrl;
 
-    public MosqueModel(String name, String address, float rating, String distance) {
+
+    public MosqueModel(String name, String address, float rating, String distance, String imageUrl) {
         this.name = name;
         this.address = address;
         this.rating = rating;
         this.distance = distance;
+        this.imageUrl = imageUrl;
     }
 
     public String getName() {
@@ -28,5 +31,7 @@ public class MosqueModel {
     public String getDistance() {
         return distance;
     }
+    public String getImageUrl() { return imageUrl; }
+
 }
 
