@@ -10,14 +10,25 @@ public class MosqueModel {
     private String establishedDate;
     private String chairman;
 
-    public MosqueModel(String name, String address, float rating, String distance, String imageUrl) {
+    // Constructor lengkap
+    public MosqueModel(String name, String address, float rating, String distance, String imageUrl,
+                       String description, String establishedDate, String chairman) {
         this.name = name;
         this.address = address;
         this.rating = rating;
         this.distance = distance;
         this.imageUrl = imageUrl;
+        this.description = description;
+        this.establishedDate = establishedDate;
+        this.chairman = chairman;
     }
 
+    // Constructor lama (jika belum pakai semua data)
+    public MosqueModel(String name, String address, float rating, String distance, String imageUrl) {
+        this(name, address, rating, distance, imageUrl, "", "", "");
+    }
+
+    // Getter
     public String getName() {
         return name;
     }

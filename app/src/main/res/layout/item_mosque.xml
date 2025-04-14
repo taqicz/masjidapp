@@ -29,7 +29,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/mosqueName"
+                android:id="@+id/masjidName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Masjid Al-Hikmah"
@@ -38,7 +38,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/mosqueAddress"
+                android:id="@+id/masjidAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -54,7 +54,7 @@
                 android:orientation="horizontal">
 
                 <RatingBar
-                    android:id="@+id/mosqueRating"
+                    android:id="@+id/masjidRating"
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -73,7 +73,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/mosqueDistance"
+                    android:id="@+id/masjidDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"

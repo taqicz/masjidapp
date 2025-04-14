@@ -9,8 +9,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-
-
 public class profilMasjid extends AppCompatActivity {
 
     private TextView tvNamaMasjid, tvDeskripsi;
@@ -32,28 +30,29 @@ public class profilMasjid extends AppCompatActivity {
 
         // Mendapatkan data yang dikirimkan melalui Intent
         Intent intent = getIntent();
-        String nameMasjid = intent.getStringExtra("nameMasjid");
-        String addressMasjid = intent.getStringExtra("addressMasjid");
-        String descriptionMasjid = intent.getStringExtra("descriptionMasjid");
-        String establishedDate = intent.getStringExtra("establishedDate");
-        String chairman = intent.getStringExtra("chairmanMasjid");
-        String imageUrl = intent.getStringExtra("imageUrl");
+        String masjidName = intent.getStringExtra("masjidName");
+        String masjidAddress = intent.getStringExtra("masjidAddress");
+        String masjidImageUrl = intent.getStringExtra("masjidImageUrl");
+        float masjidRating = intent.getFloatExtra("masjidRating", 0f);
+        String description = intent.getStringExtra("descriptionMasjid");
+        if (description != null && !description.isEmpty()) {
+            tvDeskripsi.setText(description);
+        } else {
+            tvDeskripsi.setText("Rating: " + masjidRating); // Fallback ke rating jika deskripsi tidak ada
+        }
 
         // Menampilkan data di UI
-        tvNamaMasjid.setText(nameMasjid);
-        tvDeskripsi.setText(descriptionMasjid);
-        tvAlamat.setText("Alamat: " + addressMasjid);
-        tvTanggalBerdiri.setText("Tanggal Berdiri: " + establishedDate);
-        tvKetuaTakmir.setText("Ketua Takmir: " + chairman);
+        tvNamaMasjid.setText(masjidName);
+        tvAlamat.setText("Alamat: " + masjidAddress);
+        tvDeskripsi.setText("Rating: " + masjidRating);
 
-        Button btninfaq;
+        // TODO: Load image from masjidImageUrl ke imgMasjid jika pakai Glide/Picasso
+
         Button btnInfaq = findViewById(R.id.btnInfaq);
         btnInfaq.setOnClickListener(v -> {
             Toast.makeText(this, "Terima kasih atas niat baik Anda untuk berinfaq 😊", Toast.LENGTH_SHORT).show();
-
             Intent intent1 = new Intent(this, Donasi.class);
             startActivity(intent1);
         });
-
     }
 }

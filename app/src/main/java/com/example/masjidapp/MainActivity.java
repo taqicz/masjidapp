@@ -117,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
         MosqueAdapter mosqueAdapter = new MosqueAdapter(this, mosqueList, mosque -> {
             // Aksi saat masjid diklik: buka profil masjid
             Intent intent = new Intent(this, profilMasjid.class);
-            intent.putExtra("nameMasjid", mosque.getName());
-            intent.putExtra("addressMasjid", mosque.getAddress());
+            intent.putExtra("masjidName", mosque.getName());
+            intent.putExtra("masjidAddress", mosque.getAddress());
             intent.putExtra("descriptionMasjid", mosque.getDescription());
             intent.putExtra("establishedDate", mosque.getEstablishedDate());
-            intent.putExtra("chairmanMasjid", mosque.getChairman());
+            intent.putExtra("masjidChairman", mosque.getChairman());
             intent.putExtra("imageUrl", ""); // Kosong atau URL jika ada
 
 

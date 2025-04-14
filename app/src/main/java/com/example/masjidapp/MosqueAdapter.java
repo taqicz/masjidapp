@@ -1,18 +1,16 @@
 package com.example.masjidapp;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 
 import java.util.List;
 
@@ -22,6 +20,7 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
     private List<MosqueModel> mosqueList;
     private OnItemClickListener onItemClickListener;
 
+    // Constructor
     public MosqueAdapter(Context context, List<MosqueModel> mosqueList, OnItemClickListener onItemClickListener) {
         this.context = context;
         this.mosqueList = mosqueList;
@@ -45,9 +44,9 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         holder.ratingText.setText(mosque.getRating() + " (120)");
         holder.mosqueDistance.setText(mosque.getDistance());
 
-        // Set click listener for the item
+
+        // Click listener
         holder.itemView.setOnClickListener(v -> {
-            // Mengirimkan data ke Activity Profil Masjid
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(mosque);
             }
@@ -59,7 +58,6 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         return mosqueList.size();
     }
 
-    // Define interface for item click
     public interface OnItemClickListener {
         void onItemClick(MosqueModel mosque);
     }
@@ -72,13 +70,11 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         public MosqueViewHolder(@NonNull View itemView) {
             super(itemView);
             mosqueThumbnail = itemView.findViewById(R.id.mosqueThumbnail);
-            mosqueName = itemView.findViewById(R.id.mosqueName);
-            mosqueAddress = itemView.findViewById(R.id.mosqueAddress);
-            mosqueRating = itemView.findViewById(R.id.mosqueRating);
+            mosqueName = itemView.findViewById(R.id.masjidName);
+            mosqueAddress = itemView.findViewById(R.id.masjidAddress);
+            mosqueRating = itemView.findViewById(R.id.masjidRating);
             ratingText = itemView.findViewById(R.id.ratingText);
-            mosqueDistance = itemView.findViewById(R.id.mosqueDistance);
+            mosqueDistance = itemView.findViewById(R.id.masjidDistance);
         }
     }
 }
-
-
