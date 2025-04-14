@@ -1,6 +1,7 @@
 package com.example.masjidapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,12 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
 
     private Context context;
     private List<MosqueModel> mosqueList;
+    private OnItemClickListener onItemClickListener;
 
-    public MosqueAdapter(Context context, List<MosqueModel> mosqueList) {
+    public MosqueAdapter(Context context, List<MosqueModel> mosqueList, OnItemClickListener onItemClickListener) {
         this.context = context;
         this.mosqueList = mosqueList;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -42,14 +45,12 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         holder.ratingText.setText(mosque.getRating() + " (120)");
         holder.mosqueDistance.setText(mosque.getDistance());
 
-        // Set click listener for favorite button
-        holder.favoriteButton.setOnClickListener(v -> {
-            Toast.makeText(context, "Ditambahkan ke favorit: " + mosque.getName(), Toast.LENGTH_SHORT).show();
-        });
-
         // Set click listener for the item
         holder.itemView.setOnClickListener(v -> {
-            Toast.makeText(context, "Masjid dipilih: " + mosque.getName(), Toast.LENGTH_SHORT).show();
+            // Mengirimkan data ke Activity Profil Masjid
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(mosque);
+            }
         });
     }
 
@@ -58,11 +59,15 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         return mosqueList.size();
     }
 
+    // Define interface for item click
+    public interface OnItemClickListener {
+        void onItemClick(MosqueModel mosque);
+    }
+
     public static class MosqueViewHolder extends RecyclerView.ViewHolder {
         ImageView mosqueThumbnail;
         TextView mosqueName, mosqueAddress, ratingText, mosqueDistance;
         RatingBar mosqueRating;
-        ImageButton favoriteButton;
 
         public MosqueViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -72,8 +77,8 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
             mosqueRating = itemView.findViewById(R.id.mosqueRating);
             ratingText = itemView.findViewById(R.id.ratingText);
             mosqueDistance = itemView.findViewById(R.id.mosqueDistance);
-            favoriteButton = itemView.findViewById(R.id.favoriteButton);
         }
     }
 }
+
 

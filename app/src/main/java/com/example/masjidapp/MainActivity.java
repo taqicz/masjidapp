@@ -105,7 +105,19 @@ public class MainActivity extends AppCompatActivity {
         mosqueList.add(new MosqueModel("Masjid An-Nur", "Jl. Utama No. 67, Jakarta", 4.7f, "3.1 km"));
 
         // Set adapter
-        MosqueAdapter mosqueAdapter = new MosqueAdapter(this, mosqueList);
+        MosqueAdapter mosqueAdapter = new MosqueAdapter(this, mosqueList, mosque -> {
+            // Aksi saat masjid diklik: buka profil masjid
+            Intent intent = new Intent(this, profilMasjid.class);
+            intent.putExtra("nameMasjid", mosque.getName());
+            intent.putExtra("addressMasjid", mosque.getAddress());
+            intent.putExtra("descriptionMasjid", mosque.getDescription());
+            intent.putExtra("establishedDate", mosque.getEstablishedDate());
+            intent.putExtra("chairmanMasjid", mosque.getChairman());
+            intent.putExtra("imageUrl", ""); // Kosong atau URL jika ada
+
+
+            startActivity(intent);
+        });
         mosquesRecyclerView.setAdapter(mosqueAdapter);
     }
 }

@@ -16,7 +16,10 @@
         android:theme="@style/Theme.Masjidapp"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity2"
+            android:name=".profilMasjid"
+            android:exported="false" />
+        <activity
+            android:name=".donasi"
             android:exported="false" />
         <activity
             android:name=".PrayerTimeDetailActivity"
@@ -36,6 +39,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="true" />
+        <activity android:name=".Donasi"
+            android:exported="false"
+            tools:ignore="DuplicateActivity" />
     </application>
 
 </manifest>

@@ -6,6 +6,11 @@ public class MosqueModel {
     private float rating;
     private String distance;
 
+    private String description;
+    private String establishedDate;
+    private String chairman;
+    private String imageUrl;
+
     public MosqueModel(String name, String address, float rating, String distance) {
         this.name = name;
         this.address = address;
@@ -28,5 +33,14 @@ public class MosqueModel {
     public String getDistance() {
         return distance;
     }
+
+    public String getDescription(){
+        return description;}
+    public String getEstablishedDate(){
+        return establishedDate;}
+    public String getChairman(){
+        return chairman;}
+    public String getImageUrl(){
+        return imageUrl;}
 }
 
