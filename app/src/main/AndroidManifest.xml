@@ -19,7 +19,7 @@
             android:name=".profilMasjid"
             android:exported="false" />
         <activity
-            android:name=".donasi"
+            android:name=".Donasi"
             android:exported="false" />
         <activity
             android:name=".PrayerTimeDetailActivity"
@@ -42,6 +42,9 @@
         <activity android:name=".Donasi"
             android:exported="false"
             tools:ignore="DuplicateActivity" />
+        <activity
+            android:name=".ListMasjidActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>
