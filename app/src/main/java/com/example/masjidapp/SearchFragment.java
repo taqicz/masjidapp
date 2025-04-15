@@ -1,64 +1,100 @@
 package com.example.masjidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.appbar.MaterialToolbar;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class SearchFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private RecyclerView recyclerView;
+    private MosqueAdapter adapter;
+    private List<MosqueModel> mosqueList;
+    private MaterialToolbar toolbar;
+    private Button btnBack;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public SearchFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        // Initialize views
+        toolbar = view.findViewById(R.id.toolbar);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        btnBack = view.findViewById(R.id.btn_back);
+
+        setupToolbar();
+        setupRecyclerView();
+        setupBackButton();
+
+        return view;
+    }
+
+    private void setupToolbar() {
+        toolbar.setNavigationOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
+    }
+
+    private void setupRecyclerView() {
+        // Initialize mosque list with complete data
+        mosqueList = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            mosqueList.add(new MosqueModel(
+                    "Masjid Agung " + i,
+                    "Jl. Masjid Raya No." + i + ", Kota Contoh",
+                    4.0f + i * 0.1f,
+                    i + " km",
+                    "https://example.com/mosque_images/image" + i + ".jpg",
+                    "Masjid Agung " + i + " adalah masjid bersejarah yang dibangun pada tahun 19" + (i < 10 ? "0" + i : i),
+                    "19" + (i < 10 ? "0" + i : i) + "-01-01",
+                    "H. Ahmad Budiman No." + i
+            ));
         }
+
+        // Setup adapter with click listener
+        adapter = new MosqueAdapter(requireContext(), mosqueList, mosque -> {
+            Toast.makeText(requireContext(), "Mengunjungi: " + mosque.getName(), Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(requireActivity(), profilMasjid.class);
+            // Pass all mosque data to detail activity
+            intent.putExtra("masjidName", mosque.getName());
+            intent.putExtra("masjidAddress", mosque.getAddress());
+            intent.putExtra("masjidRating", mosque.getRating());
+            intent.putExtra("masjidDistance", mosque.getDistance());
+            intent.putExtra("masjidImageUrl", mosque.getImageUrl());
+            intent.putExtra("masjidDescription", mosque.getDescription());
+            intent.putExtra("masjidEstablishedDate", mosque.getEstablishedDate());
+            intent.putExtra("masjidChairman", mosque.getChairman());
+
+            startActivity(intent);
+        });
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+    private void setupBackButton() {
+        btnBack.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
     }
 }
