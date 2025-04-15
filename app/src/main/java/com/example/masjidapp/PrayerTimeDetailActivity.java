@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -24,6 +25,7 @@ public class PrayerTimeDetailActivity extends AppCompatActivity {
 
         waktuSholatSelanjutnya = findViewById(R.id.waktu_selanjutnya);
         nextPrayerTime = getNextPrayerTime();
+
         handler.post(updateCountdown);
     }
 
@@ -77,7 +79,30 @@ public class PrayerTimeDetailActivity extends AppCompatActivity {
                 nextPrayerTime = getNextPrayerTime();
                 handler.post(this);
             }
+
         }
+        private void updateNextPrayerTime() {
+            Calendar now = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
+            for (String time : prayerTimes) {
+                Calendar prayerTime = Calendar.getInstance();
+                String[] parts = time.split(":");
+                prayerTime.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
+                prayerTime.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
+                prayerTime.set(Calendar.SECOND, 0);
+
+                if (now.before(prayerTime)) {
+                    nextPrayerTime = time;
+                    waktuSholatSelanjutnya.setText("Waktu sholat berikutnya: " + time);
+                    return;
+                }
+            }
+            nextPrayerTime = prayerTimes[0]; // Jika sudah lewat semua, kembali ke Imsak
+            waktuSholatSelanjutnya.setText("Waktu sholat berikutnya: " + nextPrayerTime);
+        }
+
+
     };
 
     @Override
