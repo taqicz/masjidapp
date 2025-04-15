@@ -1,5 +1,5 @@
 package com.example.masjidapp;
-
+//import com.example.masjidapp.MosqueModel;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
