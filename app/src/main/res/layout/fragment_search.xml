@@ -38,6 +38,23 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             android:paddingStart="16dp"/>
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btn_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tambah Masjid"
+                android:layout_marginEnd="8dp" />
+
+        </LinearLayout>
+
         <!-- Tombol Kembali -->
         <Button
             android:id="@+id/btn_back"

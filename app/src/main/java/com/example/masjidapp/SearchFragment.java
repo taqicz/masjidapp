@@ -27,6 +27,8 @@ public class SearchFragment extends Fragment {
     private MaterialToolbar toolbar;
     private Button btnBack;
 
+    private Button btnAdd;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -36,10 +38,15 @@ public class SearchFragment extends Fragment {
         toolbar = view.findViewById(R.id.toolbar);
         recyclerView = view.findViewById(R.id.recyclerView);
         btnBack = view.findViewById(R.id.btn_back);
+        btnAdd = view.findViewById(R.id.btn_add);
+
+
 
         setupToolbar();
         setupRecyclerView();
         setupBackButton();
+        setupAddButton();
+
 
         return view;
     }
@@ -97,4 +104,26 @@ public class SearchFragment extends Fragment {
             }
         });
     }
+
+    private void setupAddButton() {
+        btnAdd.setOnClickListener(v -> {
+            int newIndex = mosqueList.size() + 1;
+            MosqueModel newMosque = new MosqueModel(
+                    "Masjid Baru " + newIndex,
+                    "Jl. Baru No." + newIndex,
+                    4.5f,
+                    newIndex + " km",
+                    "https://example.com/mosque_images/new" + newIndex + ".jpg",
+                    "Masjid baru yang dibangun tahun 2025",
+                    "2025-01-01",
+                    "Ketua Baru " + newIndex
+            );
+            mosqueList.add(newMosque);
+            adapter.notifyItemInserted(mosqueList.size() - 1);
+            recyclerView.scrollToPosition(mosqueList.size() - 1);
+        });
+    }
+
+
+
 }

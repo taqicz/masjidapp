@@ -241,6 +241,40 @@
                 app:cornerRadius="8dp"
                 app:elevation="6dp" />
 
+            <!-- Tombol Update Rating -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUpdateRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/primary"
+                android:text="Update Rating"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_star"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:cornerRadius="8dp"
+                app:elevation="6dp" />
+
+            <!-- Tombol Delete -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:backgroundTint="@android:color/holo_red_light"
+                android:text="Hapus Masjid"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:cornerRadius="8dp"
+                app:elevation="6dp" />
+
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
