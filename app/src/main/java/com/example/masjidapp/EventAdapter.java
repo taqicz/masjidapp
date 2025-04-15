@@ -40,10 +40,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.eventDate.setText(event.getDate());
         holder.eventTime.setText(event.getTime());
 
-        // Set click listener for register button
-        holder.registerButton.setOnClickListener(v -> {
-            Toast.makeText(context, "Mendaftar untuk: " + event.getTitle(), Toast.LENGTH_SHORT).show();
-        });
     }
 
     @Override
@@ -54,7 +50,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         ImageView eventImage;
         TextView eventTitle, eventLocation, eventDate, eventTime;
-        Button registerButton;
 
         public EventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -63,7 +58,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             eventLocation = itemView.findViewById(R.id.eventLocation);
             eventDate = itemView.findViewById(R.id.eventDate);
             eventTime = itemView.findViewById(R.id.eventTime);
-            registerButton = itemView.findViewById(R.id.registerButton);
         }
     }
 }
