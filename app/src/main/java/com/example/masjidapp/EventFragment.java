@@ -49,6 +49,12 @@ public class EventFragment extends Fragment {
                 "Senin, 17 Juni 2023", "17:30 - 19:00 WIB"));
         eventList.add(new EventModel("Santunan Anak Yatim", "Masjid Al-Falah",
                 "Selasa, 18 Juni 2023", "16:00 - 18:00 WIB"));
+        eventList.add(new EventModel("Santunan Anak Yatim", "Masjid Al-Falah",
+                "Selasa, 18 Juni 2023", "16:00 - 18:00 WIB"));
+        eventList.add(new EventModel("Santunan Anak Yatim", "Masjid Al-Falah",
+                "Selasa, 18 Juni 2023", "16:00 - 18:00 WIB"));
+        eventList.add(new EventModel("Santunan Anak Yatim", "Masjid Al-Falah",
+                "Selasa, 18 Juni 2023", "16:00 - 18:00 WIB"));
 
         EventAdapter adapter = new EventAdapter(getContext(), eventList);
         eventsRecyclerView.setAdapter(adapter);
