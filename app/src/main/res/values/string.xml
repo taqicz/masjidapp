@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Info -->
+    <string name="app_name">Masjid App</string>
+
+    <!-- Search Fragment -->
+    <string name="mosque_list_title">Daftar Masjid</string>
+    <string name="back_button">Kembali</string>
+    <string name="add_mosque_button">Tambah Masjid</string>
+
+    <!-- Mosque Item -->
+    <string name="delete">Hapus</string>
+    <string name="visit_mosque">Mengunjungi: %s</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="confirm_delete_title">Konfirmasi Hapus</string>
+    <string name="confirm_delete_message">Apakah Anda yakin ingin menghapus masjid %s?</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="mosque_deleted">Dihapus: %s</string>
+
+    <!-- Add Mosque -->
+    <string name="new_mosque_added">Masjid baru ditambahkan</string>
+    <string name="new_mosque_name">Masjid Baru %d</string>
+    <string name="new_mosque_address">Alamat Baru No.%d</string>
+    <string name="new_mosque_description">Masjid baru yang baru saja dibangun</string>
+    <string name="new_mosque_chairman">Ketua Baru</string>
+
+    <!-- Mosque Details -->
+    <string name="mosque_name">Nama Masjid: %s</string>
+    <string name="mosque_address">Alamat: %s</string>
+    <string name="mosque_rating">Rating: %.1f</string>
+    <string name="mosque_distance">Jarak: %s</string>
+    <string name="mosque_description">Deskripsi: %s</string>
+    <string name="mosque_established">Didirikan: %s</string>
+    <string name="mosque_chairman">Ketua: %s</string>
+    <string name="hello_blank_fragment">Hello from the Profile Fragment!</string>
+
+</resources>
