@@ -42,16 +42,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="end"
             android:orientation="horizontal"
-            android:padding="8dp"
-            android:gravity="end">
+            android:padding="8dp">
 
             <Button
                 android:id="@+id/btn_add"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tambah Masjid"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="8dp"
+                android:backgroundTint="#7AC17F"
+                android:text="Tambah Masjid" />
 
         </LinearLayout>
 
@@ -60,6 +61,7 @@
             android:id="@+id/btn_back"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
             android:text="Kembali" />
     </LinearLayout>
 

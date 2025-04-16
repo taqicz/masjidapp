@@ -9,5 +9,8 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="divider">#BDBDBD</color>
+
+    <color name="main">#93dc5c</color>
+    <color name="btn">#b7e892</color>
 </resources>
 
