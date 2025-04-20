@@ -14,7 +14,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Tambah Event Baru"
+            app:title="Edit Event"
             app:titleTextColor="#FFFFFF" />
     </com.google.android.material.appbar.AppBarLayout>
 

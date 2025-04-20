@@ -39,6 +39,12 @@
         <activity
             android:name=".profilMasjid"
             android:exported="false"/>
+        <activity
+            android:name=".AddEventActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".UpdateEventActivity"
+            android:exported="false"/>
 
     </application>
 

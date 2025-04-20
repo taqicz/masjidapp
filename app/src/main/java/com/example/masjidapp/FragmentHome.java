@@ -1,7 +1,9 @@
 package com.example.masjidapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,26 +44,22 @@ public class FragmentHome extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Inisialisasi view
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         mosquesRecyclerView = view.findViewById(R.id.mosquesRecyclerView);
         notificationFab = view.findViewById(R.id.notificationFab);
         CardView prayerTimeCard = view.findViewById(R.id.prayerTimeCard);
         CardView btnLihatMasjidLainnya = view.findViewById(R.id.btnLihatMasjidLainnya);
 
-        // Set click listener untuk tombol
         btnLihatMasjidLainnya.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ListMasjidActivity.class);
             startActivity(intent);
         });
 
-        // Event klik ke detail jadwal sholat
         prayerTimeCard.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), PrayerTimeDetailActivity.class);
             startActivity(intent);
         });
 
-        // FAB Notifikasi
         notificationFab.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Notifikasi", Toast.LENGTH_SHORT).show();
         });
@@ -76,16 +74,81 @@ public class FragmentHome extends Fragment {
         eventsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        List<EventModel> eventList = new ArrayList<>();
-        eventList.add(new EventModel("Kajian Tafsir Al-Quran", "Masjid Al-Hikmah",
-                "Sabtu, 15 Juni 2023", "19:30 - 21:00 WIB"));
-        eventList.add(new EventModel("Pengajian Akbar", "Masjid Jami",
-                "Minggu, 16 Juni 2023", "09:00 - 11:30 WIB"));
-        eventList.add(new EventModel("Buka Puasa Bersama", "Masjid An-Nur",
-                "Senin, 17 Juni 2023", "17:30 - 19:00 WIB"));
+        List<EventModel> eventList = loadEventsFromPreferences();
 
         EventAdapter adapter = new EventAdapter(getContext(), eventList);
+
+        // Setup onClick listener for updating events
+        adapter.setOnEventUpdateClickListener((event, position) -> {
+            Intent intent = new Intent(getActivity(), UpdateEventActivity.class);
+            intent.putExtra("EVENT", event);  // Passing event data to the update activity
+            intent.putExtra("EVENT_POSITION", position);
+            startActivity(intent);
+        });
+
         eventsRecyclerView.setAdapter(adapter);
+    }
+
+    private List<EventModel> loadEventsFromPreferences() {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Events", getContext().MODE_PRIVATE);
+        List<EventModel> eventList = new ArrayList<>();
+
+        int eventCount = sharedPreferences.getInt("eventCount", 0);
+        Log.d("FragmentHome", "eventCount from SharedPreferences: " + eventCount);
+
+        for (int i = 0; i < eventCount; i++) {
+            String title = sharedPreferences.getString("eventTitle_" + i, "");
+            String location = sharedPreferences.getString("eventLocation_" + i, "");
+            String date = sharedPreferences.getString("eventDate_" + i, "");
+            String startTime = sharedPreferences.getString("eventStartTime_" + i, "");
+            String endTime = sharedPreferences.getString("eventEndTime_" + i, "");
+            String type = sharedPreferences.getString("eventType_" + i, "");
+            String imageUri = sharedPreferences.getString("eventImage_" + i, null);
+            String description = sharedPreferences.getString("eventDescription_" + i, "");
+
+            Log.d("FragmentHome", "Loaded event: " + title);
+
+            eventList.add(new EventModel(title, location, date, startTime, endTime, type, imageUri, description));
+        }
+
+        addDummyEventsToList(eventList);
+
+        return eventList;
+    }
+
+    private void addDummyEventsToList(List<EventModel> eventList) {
+        // Adding dummy events with both start and end times, and description
+        eventList.add(new EventModel(
+                "Pengajian Akbar",
+                "Masjid Jami",
+                "Minggu, 16 Juni 2023",
+                "09:00",
+                "11:30",
+                "Pengajian",
+                "https://example.com/image2.jpg",
+                "Acara pengajian akbar yang akan dihadiri oleh para ustadz terkemuka."));
+
+        eventList.add(new EventModel(
+                "Buka Puasa Bersama",
+                "Masjid Al-Hikmah",
+                "Senin, 18 Juni 2023",
+                "17:30",
+                "19:00",
+                "Buka Puasa",
+                "https://example.com/image3.jpg",
+                "Buka puasa bersama masyarakat sekitar masjid untuk meningkatkan silaturahmi."));
+
+        eventList.add(new EventModel(
+                "Shalat Taraweh",
+                "Masjid Baitul Rahman",
+                "Selasa, 19 Juni 2023",
+                "20:00",
+                "21:30",
+                "Taraweh",
+                "https://example.com/image4.jpg",
+                "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."));
+
+        Log.d("FragmentHome", "Dummy events added to the list.");
     }
 
     private void setupMosquesRecyclerView() {
