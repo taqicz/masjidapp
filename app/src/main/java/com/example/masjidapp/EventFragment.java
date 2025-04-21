@@ -82,7 +82,7 @@ public class EventFragment extends Fragment {
                 "09:00",
                 "11:30",
                 "Pengajian",
-                "https://example.com/image2.jpg",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
                 "Acara pengajian akbar yang akan dihadiri oleh para ustadz terkemuka."
         ));
 
@@ -93,7 +93,7 @@ public class EventFragment extends Fragment {
                 "17:30",
                 "19:00",
                 "Buka Puasa",
-                "https://example.com/image3.jpg",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
                 "Buka puasa bersama masyarakat sekitar masjid untuk meningkatkan silaturahmi."
         ));
 
@@ -104,7 +104,7 @@ public class EventFragment extends Fragment {
                 "20:00",
                 "21:30",
                 "Taraweh",
-                "https://example.com/image4.jpg",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
                 "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."
         ));
 

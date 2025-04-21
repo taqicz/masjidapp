@@ -126,7 +126,7 @@ public class FragmentHome extends Fragment {
                 "09:00",
                 "11:30",
                 "Pengajian",
-                "https://example.com/image2.jpg",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",
                 "Acara pengajian akbar yang akan dihadiri oleh para ustadz terkemuka."));
 
         eventList.add(new EventModel(
@@ -136,7 +136,7 @@ public class FragmentHome extends Fragment {
                 "17:30",
                 "19:00",
                 "Buka Puasa",
-                "https://example.com/image3.jpg",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",
                 "Buka puasa bersama masyarakat sekitar masjid untuk meningkatkan silaturahmi."));
 
         eventList.add(new EventModel(
@@ -146,24 +146,7 @@ public class FragmentHome extends Fragment {
                 "20:00",
                 "21:30",
                 "Taraweh",
-                "https://example.com/image4.jpg",
-                "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        // Update hanya event
-        if (eventList != null && eventAdapter != null) {
-            eventAdapter.setEvents(eventList);  // Update adapter dengan data terbaru
-        }
-    }
-
-    // Method untuk menerima data event baru dari AddEventActivity
-    public void addNewEvent(EventModel newEvent) {
-        if (eventList != null && newEvent != null) {
-            eventList.add(newEvent);  // Menambahkan event baru ke dalam list
-            eventAdapter.notifyItemInserted(eventList.size() - 1);  // Notifikasi adapter agar menampilkan item baru
-        }
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",
+                "Shalat Taraweh bersama umat Muslim setempat."));
     }
 }
