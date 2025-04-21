@@ -36,6 +36,8 @@
         <activity
             android:name=".ListMasjidActivity"
             android:exported="false"/>
+        <activity
+            android:name=".ListBukuActivity"/>
 
     </application>
 

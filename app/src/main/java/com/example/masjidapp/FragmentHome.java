@@ -5,15 +5,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.widget.Toast;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +22,12 @@ public class FragmentHome extends Fragment {
 
     private RecyclerView eventsRecyclerView;
     private RecyclerView mosquesRecyclerView;
+    private RecyclerView recyclerBuku;
     private FloatingActionButton notificationFab;
+    private TextView btnLihatLainnya;
 
     public FragmentHome() {
         // Required empty public constructor
-    }
-
-    public static FragmentHome newInstance(String param1, String param2) {
-        FragmentHome fragment = new FragmentHome();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -45,7 +38,10 @@ public class FragmentHome extends Fragment {
         // Inisialisasi view
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         mosquesRecyclerView = view.findViewById(R.id.mosquesRecyclerView);
+        recyclerBuku = view.findViewById(R.id.recyclerBuku);
         notificationFab = view.findViewById(R.id.notificationFab);
+        btnLihatLainnya = view.findViewById(R.id.btnLihatLainnya);
+
         CardView prayerTimeCard = view.findViewById(R.id.prayerTimeCard);
         CardView btnLihatMasjidLainnya = view.findViewById(R.id.btnLihatMasjidLainnya);
 
@@ -66,8 +62,10 @@ public class FragmentHome extends Fragment {
             Toast.makeText(getActivity(), "Notifikasi", Toast.LENGTH_SHORT).show();
         });
 
+        // Setup RecyclerView untuk event, masjid, dan buku
         setupEventsRecyclerView();
         setupMosquesRecyclerView();
+        setupBukuRecyclerView();
 
         return view;
     }
@@ -110,4 +108,22 @@ public class FragmentHome extends Fragment {
 
         mosquesRecyclerView.setAdapter(adapter);
     }
-}
+
+    private void setupBukuRecyclerView() {
+        recyclerBuku.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        ArrayList<BukuModel> listBuku = new ArrayList<>();
+        listBuku.add(new BukuModel(1, R.drawable.buku1, "Tafsir Al-Misbah oleh Quraish Shihab", "2005"));
+        listBuku.add(new BukuModel(2, R.drawable.buku2, "Fiqh Wanita - Syaikh Shalih Al-Fauzan", "2010"));
+        listBuku.add(new BukuModel(3, R.drawable.buku3, "Sirah Nabawiyah - Ibnu Hisyam", "1998"));
+
+        BukuAdapter bukuAdapter = new BukuAdapter(getContext(), listBuku);
+        recyclerBuku.setAdapter(bukuAdapter);
+
+        // Lihat lainnya
+        btnLihatLainnya.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ListBukuActivity.class);
+            startActivity(intent);
+        });
+    }}
+
