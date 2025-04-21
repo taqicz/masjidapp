@@ -1,31 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".BeritaFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="80dp"> <!-- beri ruang agar konten tidak ketutupan tombol -->
 
-        <TextView
-            android:id="@+id/judulText"
+        <!--Trending-->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewTrending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal"/>
+
+        <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Judul Berita"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/berita_field_cari"
+            android:paddingStart="20dp"
+            android:hint="Cari Artikel ..."
+            android:textSize="12sp"
+            android:drawableStart="@drawable/ic_search" />
 
-        <TextView
-            android:id="@+id/isiText"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewArtikel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Isi berita"
-            android:textSize="14sp"
-            android:layout_marginTop="4dp" />
-
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:scrollbars="vertical" />
     </LinearLayout>
+
+    <!-- Tombol di kanan bawah -->
+    <Button
+        android:id="@+id/berita_add"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="100dp"
+        android:background="@drawable/ic_add" />
 </FrameLayout>

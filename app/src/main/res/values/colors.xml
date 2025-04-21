@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#4CAF50</color>
-    <color name="primary_dark">#388E3C</color>
+
     <color name="primary_light">#C8E6C9</color>
-    <color name="accent">#8BC34A</color>
+
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+
     <color name="divider">#BDBDBD</color>
+    <!-- Warna dasar -->
+    <color name="primary">#00695C</color>
+    <color name="primary_dark">#004D40</color>
+    <color name="accent">#009688</color>
+
+    <!-- Warna untuk navbar -->
+    <color name="nav_selected">#000000</color>
+    <color name="nav_unselected">#757575</color>
+
+    <!-- Warna standard -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 </resources>
 
