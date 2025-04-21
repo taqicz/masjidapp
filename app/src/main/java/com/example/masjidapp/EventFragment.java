@@ -28,16 +28,18 @@ public class EventFragment extends Fragment {
 
     public EventFragment() {}
 
+    // Menangani hasil dari UpdateEventActivity
     private final ActivityResultLauncher<Intent> updateEventLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                    // Mendapatkan acara yang telah diperbarui dan posisi acara yang perlu diubah
                     EventModel updatedEvent = (EventModel) result.getData().getSerializableExtra("UPDATED_EVENT");
                     int position = result.getData().getIntExtra("EVENT_POSITION", -1);
 
                     if (updatedEvent != null && position != -1 && position < eventList.size()) {
                         eventList.set(position, updatedEvent);
                         eventAdapter.notifyItemChanged(position);
-                        saveEventsToPreferences();
+                        saveEventsToPreferences();  // Menyimpan acara yang diperbarui ke SharedPreferences
                     }
                 }
             });
@@ -52,9 +54,11 @@ public class EventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Setup RecyclerView
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         setupEventsRecyclerView();
 
+        // Setup FAB untuk menambah acara baru
         FloatingActionButton fabAddEvent = view.findViewById(R.id.fab_add_event);
         fabAddEvent.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), AddEventActivity.class);
@@ -68,24 +72,24 @@ public class EventFragment extends Fragment {
         eventList = new ArrayList<>();
         eventAdapter = new EventAdapter(getContext(), eventList);
 
-        // ✅ Tambahkan listener setelah adapter dibuat
+        // Menambahkan listener untuk tombol update pada setiap acara
         eventAdapter.setOnEventUpdateClickListener((event, position) -> {
             Intent intent = new Intent(getContext(), UpdateEventActivity.class);
             intent.putExtra("EVENT", event);
             intent.putExtra("EVENT_POSITION", position);
-            updateEventLauncher.launch(intent);
+            updateEventLauncher.launch(intent);  // Meluncurkan aktivitas untuk memperbarui acara
         });
 
         eventsRecyclerView.setAdapter(eventAdapter);
-        loadEventsFromPreferences();
+        loadEventsFromPreferences();  // Memuat acara saat fragment pertama kali dibuat
     }
 
+    // Memuat acara dari SharedPreferences
     private void loadEventsFromPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Events", getContext().MODE_PRIVATE);
-        eventList.clear();
+        eventList.clear();  // Menghapus daftar acara lama untuk menghindari duplikasi
 
         int eventCount = sharedPreferences.getInt("eventCount", 0);
-
         for (int i = 0; i < eventCount; i++) {
             String title = sharedPreferences.getString("eventTitle_" + i, "");
             String location = sharedPreferences.getString("eventLocation_" + i, "");
@@ -99,16 +103,16 @@ public class EventFragment extends Fragment {
             eventList.add(new EventModel(title, location, date, startTime, endTime, type, imageUri, description));
         }
 
-        addDummyEventsToList(); // Optional untuk testing
-        eventAdapter.setEvents(eventList);
+        eventAdapter.setEvents(eventList);  // Memperbarui adapter dengan acara yang dimuat
     }
 
+    // Menyimpan acara ke SharedPreferences
     private void saveEventsToPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Events", getContext().MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
+        editor.clear();  // Menghapus acara lama yang ada di SharedPreferences
 
-        editor.putInt("eventCount", eventList.size());
+        editor.putInt("eventCount", eventList.size());  // Menyimpan jumlah acara
         for (int i = 0; i < eventList.size(); i++) {
             EventModel event = eventList.get(i);
             editor.putString("eventTitle_" + i, event.getTitle());
@@ -121,9 +125,10 @@ public class EventFragment extends Fragment {
             editor.putString("eventDescription_" + i, event.getDescription());
         }
 
-        editor.apply();
+        editor.apply();  // Menerapkan perubahan ke SharedPreferences
     }
 
+    // Acara dummy untuk testing (dapat dihapus jika menggunakan data nyata)
     private void addDummyEventsToList() {
         eventList.add(new EventModel(
                 "Pengajian Akbar",
@@ -162,6 +167,6 @@ public class EventFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadEventsFromPreferences();
+        loadEventsFromPreferences();  // Memuat ulang acara setiap kali fragment ditampilkan kembali
     }
 }

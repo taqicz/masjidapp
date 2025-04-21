@@ -44,26 +44,31 @@ public class FragmentHome extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        // Initialize RecyclerView and other views
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         mosquesRecyclerView = view.findViewById(R.id.mosquesRecyclerView);
         notificationFab = view.findViewById(R.id.notificationFab);
         CardView prayerTimeCard = view.findViewById(R.id.prayerTimeCard);
         CardView btnLihatMasjidLainnya = view.findViewById(R.id.btnLihatMasjidLainnya);
 
+        // Event for button "Lihat Masjid Lainnya"
         btnLihatMasjidLainnya.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ListMasjidActivity.class);
             startActivity(intent);
         });
 
+        // Event for prayer time card
         prayerTimeCard.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), PrayerTimeDetailActivity.class);
             startActivity(intent);
         });
 
+        // Event for notification FAB
         notificationFab.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Notifikasi", Toast.LENGTH_SHORT).show();
         });
 
+        // Setup RecyclerViews
         setupEventsRecyclerView();
         setupMosquesRecyclerView();
 
@@ -83,10 +88,36 @@ public class FragmentHome extends Fragment {
             Intent intent = new Intent(getActivity(), UpdateEventActivity.class);
             intent.putExtra("EVENT", event);  // Passing event data to the update activity
             intent.putExtra("EVENT_POSITION", position);
-            startActivity(intent);
+            startActivityForResult(intent, 100);  // Use startActivityForResult for returning updated data
         });
 
         eventsRecyclerView.setAdapter(adapter);
+    }
+
+    // Handle the result from UpdateEventActivity
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == getActivity().RESULT_OK && data != null) {
+            // Get the updated event and position
+            EventModel updatedEvent = (EventModel) data.getSerializableExtra("UPDATED_EVENT");
+            int position = data.getIntExtra("EVENT_POSITION", -1);
+
+            if (updatedEvent != null && position != -1) {
+                // Update the event in the list
+                List<EventModel> eventList = loadEventsFromPreferences();
+                eventList.set(position, updatedEvent); // Update the item at the position
+
+                // Refresh RecyclerView
+                EventAdapter adapter = (EventAdapter) eventsRecyclerView.getAdapter();
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged(); // Notify adapter to refresh all items
+                }
+
+                // Save updated events to SharedPreferences
+                saveEventsToPreferences(eventList);
+            }
+        }
     }
 
     private List<EventModel> loadEventsFromPreferences() {
@@ -106,14 +137,34 @@ public class FragmentHome extends Fragment {
             String imageUri = sharedPreferences.getString("eventImage_" + i, null);
             String description = sharedPreferences.getString("eventDescription_" + i, "");
 
-            Log.d("FragmentHome", "Loaded event: " + title);
-
             eventList.add(new EventModel(title, location, date, startTime, endTime, type, imageUri, description));
         }
 
-        addDummyEventsToList(eventList);
+        addDummyEventsToList(eventList);  // Optionally, add dummy events to the list
 
         return eventList;
+    }
+
+    private void saveEventsToPreferences(List<EventModel> eventList) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Events", getContext().MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();  // Clear old events
+
+        editor.putInt("eventCount", eventList.size());
+        for (int i = 0; i < eventList.size(); i++) {
+            EventModel event = eventList.get(i);
+            editor.putString("eventTitle_" + i, event.getTitle());
+            editor.putString("eventLocation_" + i, event.getLocation());
+            editor.putString("eventDate_" + i, event.getDate());
+            editor.putString("eventStartTime_" + i, event.getStartTime());
+            editor.putString("eventEndTime_" + i, event.getEndTime());
+            editor.putString("eventType_" + i, event.getType());
+            editor.putString("eventImage_" + i, event.getImageUri());
+            editor.putString("eventDescription_" + i, event.getDescription());
+        }
+
+        editor.apply();  // Apply changes to SharedPreferences
+        Log.d("FragmentHome", "Updated events saved to SharedPreferences");
     }
 
     private void addDummyEventsToList(List<EventModel> eventList) {
@@ -147,8 +198,6 @@ public class FragmentHome extends Fragment {
                 "Taraweh",
                 "https://example.com/image4.jpg",
                 "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."));
-
-        Log.d("FragmentHome", "Dummy events added to the list.");
     }
 
     private void setupMosquesRecyclerView() {
