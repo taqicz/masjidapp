@@ -75,12 +75,38 @@ public class FragmentHome extends Fragment {
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         List<EventModel> eventList = new ArrayList<>();
-        eventList.add(new EventModel("Kajian Tafsir Al-Quran", "Masjid Al-Hikmah",
-                "Sabtu, 15 Juni 2023", "19:30 - 21:00 WIB"));
-        eventList.add(new EventModel("Pengajian Akbar", "Masjid Jami",
-                "Minggu, 16 Juni 2023", "09:00 - 11:30 WIB"));
-        eventList.add(new EventModel("Buka Puasa Bersama", "Masjid An-Nur",
-                "Senin, 17 Juni 2023", "17:30 - 19:00 WIB"));
+        eventList.add(new EventModel(
+                "Pengajian Akbar",
+                "Masjid Jami",
+                "Minggu, 16 Juni 2023",
+                "09:00",
+                "11:30",
+                "Pengajian",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
+                "Acara pengajian akbar yang akan dihadiri oleh para ustadz terkemuka."
+        ));
+
+        eventList.add(new EventModel(
+                "Buka Puasa Bersama",
+                "Masjid Al-Hikmah",
+                "Senin, 18 Juni 2023",
+                "17:30",
+                "19:00",
+                "Buka Puasa",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
+                "Buka puasa bersama masyarakat sekitar masjid untuk meningkatkan silaturahmi."
+        ));
+
+        eventList.add(new EventModel(
+                "Shalat Taraweh",
+                "Masjid Baitul Rahman",
+                "Selasa, 19 Juni 2023",
+                "20:00",
+                "21:30",
+                "Taraweh",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
+                "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."
+        ));
 
         EventAdapter adapter = new EventAdapter(getContext(), eventList);
         eventsRecyclerView.setAdapter(adapter);
