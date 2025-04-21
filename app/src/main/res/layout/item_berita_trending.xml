@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="265dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_trending">
+        </ImageView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#4D000000">
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/categoryTrending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="Category"
+            android:textColor="@color/white"
+            android:layout_above="@id/titleTrending">
+        </TextView>
+
+        <TextView
+            android:id="@+id/titleTrending"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="Lorem Ipsum Dolor Set Amet"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:layout_centerVertical="true"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingExtra="4dp"
+            android:breakStrategy="simple"
+            android:hyphenationFrequency="none" >
+        </TextView>
+
+        <Button
+            android:id="@+id/buttonTrending"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="Baca selengkapnya"
+            android:textColor="@color/white"
+            android:background="@drawable/berita_button_baca"
+            android:layout_below="@id/titleTrending">
+        </Button>
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

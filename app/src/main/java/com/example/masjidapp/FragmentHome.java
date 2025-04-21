@@ -5,15 +5,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.widget.Toast;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +22,12 @@ public class FragmentHome extends Fragment {
 
     private RecyclerView eventsRecyclerView;
     private RecyclerView mosquesRecyclerView;
+    private RecyclerView recyclerBuku;
     private FloatingActionButton notificationFab;
+    private TextView btnLihatLainnya;
 
     public FragmentHome() {
         // Required empty public constructor
-    }
-
-    public static FragmentHome newInstance(String param1, String param2) {
-        FragmentHome fragment = new FragmentHome();
-        Bundle args = new Bundle();
-        args.putString("param1", param1);
-        args.putString("param2", param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -45,7 +38,10 @@ public class FragmentHome extends Fragment {
         // Inisialisasi view
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         mosquesRecyclerView = view.findViewById(R.id.mosquesRecyclerView);
+        recyclerBuku = view.findViewById(R.id.recyclerBuku);
         notificationFab = view.findViewById(R.id.notificationFab);
+        btnLihatLainnya = view.findViewById(R.id.btnLihatLainnya);
+
         CardView prayerTimeCard = view.findViewById(R.id.prayerTimeCard);
         CardView btnLihatMasjidLainnya = view.findViewById(R.id.btnLihatMasjidLainnya);
 
@@ -66,8 +62,10 @@ public class FragmentHome extends Fragment {
             Toast.makeText(getActivity(), "Notifikasi", Toast.LENGTH_SHORT).show();
         });
 
+        // Setup RecyclerView untuk event, masjid, dan buku
         setupEventsRecyclerView();
         setupMosquesRecyclerView();
+        setupBukuRecyclerView();
 
         return view;
     }
@@ -77,12 +75,38 @@ public class FragmentHome extends Fragment {
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         List<EventModel> eventList = new ArrayList<>();
-        eventList.add(new EventModel("Kajian Tafsir Al-Quran", "Masjid Al-Hikmah",
-                "Sabtu, 15 Juni 2023", "19:30 - 21:00 WIB"));
-        eventList.add(new EventModel("Pengajian Akbar", "Masjid Jami",
-                "Minggu, 16 Juni 2023", "09:00 - 11:30 WIB"));
-        eventList.add(new EventModel("Buka Puasa Bersama", "Masjid An-Nur",
-                "Senin, 17 Juni 2023", "17:30 - 19:00 WIB"));
+        eventList.add(new EventModel(
+                "Pengajian Akbar",
+                "Masjid Jami",
+                "Minggu, 16 Juni 2023",
+                "09:00",
+                "11:30",
+                "Pengajian",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
+                "Acara pengajian akbar yang akan dihadiri oleh para ustadz terkemuka."
+        ));
+
+        eventList.add(new EventModel(
+                "Buka Puasa Bersama",
+                "Masjid Al-Hikmah",
+                "Senin, 18 Juni 2023",
+                "17:30",
+                "19:00",
+                "Buka Puasa",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
+                "Buka puasa bersama masyarakat sekitar masjid untuk meningkatkan silaturahmi."
+        ));
+
+        eventList.add(new EventModel(
+                "Shalat Taraweh",
+                "Masjid Baitul Rahman",
+                "Selasa, 19 Juni 2023",
+                "20:00",
+                "21:30",
+                "Taraweh",
+                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
+                "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."
+        ));
 
         EventAdapter adapter = new EventAdapter(getContext(), eventList);
         eventsRecyclerView.setAdapter(adapter);
@@ -110,4 +134,22 @@ public class FragmentHome extends Fragment {
 
         mosquesRecyclerView.setAdapter(adapter);
     }
-}
+
+    private void setupBukuRecyclerView() {
+        recyclerBuku.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+
+        ArrayList<BukuModel> listBuku = new ArrayList<>();
+        listBuku.add(new BukuModel(1, R.drawable.buku1, "Tafsir Al-Misbah oleh Quraish Shihab", "2005"));
+        listBuku.add(new BukuModel(2, R.drawable.buku2, "Fiqh Wanita - Syaikh Shalih Al-Fauzan", "2010"));
+        listBuku.add(new BukuModel(3, R.drawable.buku3, "Sirah Nabawiyah - Ibnu Hisyam", "1998"));
+
+        BukuAdapter bukuAdapter = new BukuAdapter(getContext(), listBuku);
+        recyclerBuku.setAdapter(bukuAdapter);
+
+        // Lihat lainnya
+        btnLihatLainnya.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ListBukuActivity.class);
+            startActivity(intent);
+        });
+    }}
+

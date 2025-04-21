@@ -7,6 +7,7 @@
     <color name="text_secondary">#757575</color>
 
     <color name="divider">#BDBDBD</color>
+<<<<<<< HEAD
     <!-- Warna dasar -->
     <color name="primary">#00695C</color>
     <color name="primary_dark">#004D40</color>
@@ -19,5 +20,10 @@
     <!-- Warna standard -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+=======
+
+    <color name="main">#93dc5c</color>
+    <color name="btn">#b7e892</color>
+>>>>>>> 535055e932cb06bda6467a78ffcba21b90f471ff
 </resources>
 
