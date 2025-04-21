@@ -104,6 +104,99 @@
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Informasi Detail"
+                            android:textColor="@color/primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="50dp"
+                            android:layout_height="3dp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="12dp"
+                            android:background="@color/accent" />
+
+                        <!-- Tanggal Berdiri dengan layout yang lebih baik -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginEnd="12dp"
+                                android:src="@drawable/ic_calendar"
+                                app:tint="@color/primary" />
+
+                            <TextView
+                                android:id="@+id/tvTanggalBerdiri"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Tanggal Berdiri: 12 Mei 1980"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <!-- Alamat -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginEnd="12dp"
+                                android:src="@drawable/ic_location"
+                                app:tint="@color/primary" />
+
+                            <TextView
+                                android:id="@+id/tvAlamat"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Jl. Contoh No.123, Kota"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+
+                        <!-- Ketua Takmir -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginEnd="12dp"
+                                android:src="@drawable/ic_person"
+                                app:tint="@color/primary" />
+
+                            <TextView
+                                android:id="@+id/tvKetuaTakmir"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Ketua Takmir: Ust. Ahmad"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
                     <View
                         android:layout_width="50dp"
                         android:layout_height="3dp"
@@ -130,98 +223,6 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="4dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Informasi Detail"
-                        android:textColor="@color/primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="50dp"
-                        android:layout_height="3dp"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="12dp"
-                        android:background="@color/accent" />
-
-                    <!-- Tanggal Berdiri dengan layout yang lebih baik -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="12dp"
-                            android:src="@drawable/ic_calendar"
-                            app:tint="@color/primary" />
-
-                        <TextView
-                            android:id="@+id/tvTanggalBerdiri"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Tanggal Berdiri: 12 Mei 1980"
-                            android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-
-                    <!-- Alamat -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="12dp"
-                            android:src="@drawable/ic_location"
-                            app:tint="@color/primary" />
-
-                        <TextView
-                            android:id="@+id/tvAlamat"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Jl. Contoh No.123, Kota"
-                            android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-
-                    <!-- Ketua Takmir -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginEnd="12dp"
-                            android:src="@drawable/ic_person"
-                            app:tint="@color/primary" />
-
-                        <TextView
-                            android:id="@+id/tvKetuaTakmir"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Ketua Takmir: Ust. Ahmad"
-                            android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-                </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- Tombol Infaq yang lebih menarik -->
@@ -240,6 +241,40 @@
                 app:iconPadding="8dp"
                 app:cornerRadius="8dp"
                 app:elevation="6dp" />
+
+            <!-- Tombol Update Rating -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnUpdateRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/primary"
+                android:text="Update Rating"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_star"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:cornerRadius="8dp"
+                app:elevation="6dp" />
+
+            <!-- Tombol Delete -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:backgroundTint="@android:color/holo_red_light"
+                android:text="Hapus Masjid"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:cornerRadius="8dp"
+                app:elevation="6dp" />
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

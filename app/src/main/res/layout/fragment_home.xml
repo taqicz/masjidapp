@@ -262,5 +262,6 @@
         android:layout_marginBottom="80dp"
         android:contentDescription="Notifications"
         android:src="@drawable/ic_notifications"
+        app:backgroundTint="@color/primary"
         app:fabSize="normal" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
