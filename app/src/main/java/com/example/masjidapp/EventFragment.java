@@ -1,7 +1,6 @@
 package com.example.masjidapp;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,35 +17,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class EventFragment extends Fragment {
 
     private RecyclerView eventsRecyclerView;
-    private List<EventModel> eventList;
+    private ArrayList<EventModel> eventList;
     private EventAdapter eventAdapter;
+
+    private static final int REQUEST_ADD_EVENT = 1;  // Request code untuk menambah event
+    private static final int REQUEST_UPDATE_EVENT = 2;  // Request code untuk update event
 
     public EventFragment() {}
 
-    // Menangani hasil dari UpdateEventActivity
-    private final ActivityResultLauncher<Intent> updateEventLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
-                    // Mendapatkan acara yang telah diperbarui dan posisi acara yang perlu diubah
-                    EventModel updatedEvent = (EventModel) result.getData().getSerializableExtra("UPDATED_EVENT");
-                    int position = result.getData().getIntExtra("EVENT_POSITION", -1);
-
-                    if (updatedEvent != null && position != -1 && position < eventList.size()) {
-                        eventList.set(position, updatedEvent);
-                        eventAdapter.notifyItemChanged(position);
-                        saveEventsToPreferences();  // Menyimpan acara yang diperbarui ke SharedPreferences
-                    }
-                }
-            });
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_event, container, false);
     }
 
@@ -62,7 +46,7 @@ public class EventFragment extends Fragment {
         FloatingActionButton fabAddEvent = view.findViewById(R.id.fab_add_event);
         fabAddEvent.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), AddEventActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_ADD_EVENT);  // Start AddEventActivity dengan request code
         });
     }
 
@@ -72,64 +56,25 @@ public class EventFragment extends Fragment {
         eventList = new ArrayList<>();
         eventAdapter = new EventAdapter(getContext(), eventList);
 
-        // Menambahkan listener untuk tombol update pada setiap acara
+        // Set listener untuk tombol update
         eventAdapter.setOnEventUpdateClickListener((event, position) -> {
             Intent intent = new Intent(getContext(), UpdateEventActivity.class);
             intent.putExtra("EVENT", event);
             intent.putExtra("EVENT_POSITION", position);
-            updateEventLauncher.launch(intent);  // Meluncurkan aktivitas untuk memperbarui acara
+            startActivityForResult(intent, REQUEST_UPDATE_EVENT);  // Menggunakan request code untuk update
+        });
+
+        // Set listener untuk tombol delete
+        eventAdapter.setOnEventDeleteClickListener(position -> {
+            // Hapus event dari eventList
+            eventList.remove(position);
+            eventAdapter.notifyItemRemoved(position);  // Memberitahu adapter bahwa item telah dihapus
+            eventAdapter.notifyItemRangeChanged(position, eventList.size());  // Perbarui item setelah penghapusan
         });
 
         eventsRecyclerView.setAdapter(eventAdapter);
-        loadEventsFromPreferences();  // Memuat acara saat fragment pertama kali dibuat
-    }
 
-    // Memuat acara dari SharedPreferences
-    private void loadEventsFromPreferences() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Events", getContext().MODE_PRIVATE);
-        eventList.clear();  // Menghapus daftar acara lama untuk menghindari duplikasi
-
-        int eventCount = sharedPreferences.getInt("eventCount", 0);
-        for (int i = 0; i < eventCount; i++) {
-            String title = sharedPreferences.getString("eventTitle_" + i, "");
-            String location = sharedPreferences.getString("eventLocation_" + i, "");
-            String date = sharedPreferences.getString("eventDate_" + i, "");
-            String startTime = sharedPreferences.getString("eventStartTime_" + i, "");
-            String endTime = sharedPreferences.getString("eventEndTime_" + i, "");
-            String type = sharedPreferences.getString("eventType_" + i, "");
-            String imageUri = sharedPreferences.getString("eventImage_" + i, null);
-            String description = sharedPreferences.getString("eventDescription_" + i, "");
-
-            eventList.add(new EventModel(title, location, date, startTime, endTime, type, imageUri, description));
-        }
-
-        eventAdapter.setEvents(eventList);  // Memperbarui adapter dengan acara yang dimuat
-    }
-
-    // Menyimpan acara ke SharedPreferences
-    private void saveEventsToPreferences() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("Events", getContext().MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();  // Menghapus acara lama yang ada di SharedPreferences
-
-        editor.putInt("eventCount", eventList.size());  // Menyimpan jumlah acara
-        for (int i = 0; i < eventList.size(); i++) {
-            EventModel event = eventList.get(i);
-            editor.putString("eventTitle_" + i, event.getTitle());
-            editor.putString("eventLocation_" + i, event.getLocation());
-            editor.putString("eventDate_" + i, event.getDate());
-            editor.putString("eventStartTime_" + i, event.getStartTime());
-            editor.putString("eventEndTime_" + i, event.getEndTime());
-            editor.putString("eventType_" + i, event.getType());
-            editor.putString("eventImage_" + i, event.getImageUri());
-            editor.putString("eventDescription_" + i, event.getDescription());
-        }
-
-        editor.apply();  // Menerapkan perubahan ke SharedPreferences
-    }
-
-    // Acara dummy untuk testing (dapat dihapus jika menggunakan data nyata)
-    private void addDummyEventsToList() {
+        // Dummy data langsung ditambahkan
         eventList.add(new EventModel(
                 "Pengajian Akbar",
                 "Masjid Jami",
@@ -162,11 +107,27 @@ public class EventFragment extends Fragment {
                 "https://example.com/image4.jpg",
                 "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."
         ));
+
+        eventAdapter.setEvents(eventList);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        loadEventsFromPreferences();  // Memuat ulang acara setiap kali fragment ditampilkan kembali
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ADD_EVENT && resultCode == getActivity().RESULT_OK && data != null) {
+            EventModel newEvent = (EventModel) data.getSerializableExtra("newEvent");
+            if (newEvent != null) {
+                eventList.add(newEvent);  // Tambahkan event baru ke eventList
+                eventAdapter.notifyItemInserted(eventList.size() - 1);  // Notifikasi bahwa data baru ditambahkan
+            }
+        }
+        if (requestCode == REQUEST_UPDATE_EVENT && resultCode == getActivity().RESULT_OK && data != null) {
+            EventModel updatedEvent = (EventModel) data.getSerializableExtra("UPDATED_EVENT");
+            int position = data.getIntExtra("EVENT_POSITION", -1);
+            if (updatedEvent != null && position >= 0) {
+                eventList.set(position, updatedEvent);  // Update event yang ada pada posisi yang sesuai
+                eventAdapter.notifyItemChanged(position);  // Notifikasi bahwa item diubah
+            }
+        }
     }
 }

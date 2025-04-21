@@ -3,7 +3,6 @@ package com.example.masjidapp;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
@@ -38,7 +37,7 @@ public class AddEventActivity extends AppCompatActivity {
         etDate = findViewById(R.id.etEventDate);
         etStartTime = findViewById(R.id.etEventStartTime);
         etType = findViewById(R.id.etEventType);
-        etDescription = findViewById(R.id.etEventDescription);  // Tambahkan inisialisasi untuk kolom deskripsi
+        etDescription = findViewById(R.id.etEventDescription);
 
         btnSave = findViewById(R.id.btnSaveEvent);
         btnUploadImage = findViewById(R.id.btnUploadImage);
@@ -54,15 +53,25 @@ public class AddEventActivity extends AppCompatActivity {
             String date = etDate.getText().toString().trim();
             String timeRange = etStartTime.getText().toString().trim();
             String type = etType.getText().toString().trim();
-            String description = etDescription.getText().toString().trim();  // Ambil nilai deskripsi
+            String description = etDescription.getText().toString().trim();
 
             if (title.isEmpty() || location.isEmpty() || date.isEmpty() || timeRange.isEmpty() || type.isEmpty() || description.isEmpty()) {
                 Toast.makeText(this, "Semua field harus diisi", Toast.LENGTH_SHORT).show();
             } else {
-                saveEventToPreferences(title, location, date, startHour, endHour, type, description);  // Kirim deskripsi ke method penyimpanan
-                Toast.makeText(this, "Event berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                EventModel newEvent = new EventModel(
+                        title,
+                        location,
+                        date,
+                        startHour,
+                        endHour,
+                        type,
+                        selectedImageUri != null ? selectedImageUri.toString() : "",
+                        description
+                );
+
+                // Kirimkan ke activity pemanggil
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("eventAdded", true);
+                resultIntent.putExtra("newEvent", newEvent);
                 setResult(RESULT_OK, resultIntent);
                 finish();
             }
@@ -108,26 +117,5 @@ public class AddEventActivity extends AppCompatActivity {
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
 
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
-    }
-
-    private void saveEventToPreferences(String title, String location, String date, String startTime, String endTime, String type, String description) {
-        SharedPreferences sharedPreferences = getSharedPreferences("Events", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        int eventCount = sharedPreferences.getInt("eventCount", 0);
-        editor.putString("eventTitle_" + eventCount, title);
-        editor.putString("eventLocation_" + eventCount, location);
-        editor.putString("eventDate_" + eventCount, date);
-        editor.putString("eventStartTime_" + eventCount, startTime);
-        editor.putString("eventEndTime_" + eventCount, endTime);
-        editor.putString("eventType_" + eventCount, type);
-        editor.putString("eventDescription_" + eventCount, description);  // Menyimpan deskripsi event
-
-        if (selectedImageUri != null) {
-            editor.putString("eventImage_" + eventCount, selectedImageUri.toString());
-        }
-
-        editor.putInt("eventCount", eventCount + 1);
-        editor.apply();
     }
 }
