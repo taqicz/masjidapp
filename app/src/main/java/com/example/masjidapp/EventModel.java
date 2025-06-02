@@ -3,6 +3,7 @@ package com.example.masjidapp;
 import java.io.Serializable;
 
 public class EventModel implements Serializable {
+    private String id;
     private String title;
     private String location;
     private String date;
@@ -12,9 +13,12 @@ public class EventModel implements Serializable {
     private String imageUri;
     private String description;
 
-    // Constructors, getters, and setters
+    public EventModel() {
+        // Required for Firebase
+    }
 
-    public EventModel(String title, String location, String date, String startTime, String endTime, String type, String imageUri, String description) {
+    public EventModel(String id, String title, String location, String date, String startTime, String endTime, String type, String imageUri, String description) {
+        this.id = id;
         this.title = title;
         this.location = location;
         this.date = date;
@@ -24,6 +28,9 @@ public class EventModel implements Serializable {
         this.imageUri = imageUri;
         this.description = description;
     }
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

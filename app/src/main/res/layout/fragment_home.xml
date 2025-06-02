@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -163,6 +164,40 @@
                 </FrameLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- Buku Islami Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Buku Islami"
+                    android:textStyle="bold"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/btnLihatLainnya"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lihat lainnya"
+                    android:textColor="@color/accent"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerBuku"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:nestedScrollingEnabled="false"
+                android:overScrollMode="never"
+                android:scrollbars="horizontal" />
+
             <!-- Upcoming Events Section -->
             <TextView
                 android:layout_width="match_parent"
@@ -196,7 +231,7 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- View More Button (CardView Version) -->
+            <!-- View More Button -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/btnLihatMasjidLainnya"
                 android:layout_width="wrap_content"
@@ -214,7 +249,6 @@
                     android:textColor="@android:color/white"
                     android:textSize="16sp"/>
             </androidx.cardview.widget.CardView>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -228,6 +262,6 @@
         android:layout_marginBottom="80dp"
         android:contentDescription="Notifications"
         android:src="@drawable/ic_notifications"
+        app:backgroundTint="@color/primary"
         app:fabSize="normal" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

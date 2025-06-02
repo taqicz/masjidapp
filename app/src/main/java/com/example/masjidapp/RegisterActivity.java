@@ -8,9 +8,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -18,10 +23,12 @@ public class RegisterActivity extends AppCompatActivity {
     private Button registerButton;
     private TextView loginText;
 
+    private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register); // Pastikan XML sudah benar
+        setContentView(R.layout.activity_register);
 
         // Inisialisasi elemen UI
         nameEditText = findViewById(R.id.nameEditText);
@@ -31,8 +38,8 @@ public class RegisterActivity extends AppCompatActivity {
         confirmPasswordEditText = findViewById(R.id.confirmPasswordEditText);
         registerButton = findViewById(R.id.registerButton);
         loginText = findViewById(R.id.loginText);
+        mAuth = FirebaseAuth.getInstance();
 
-        // Event saat tombol "Daftar" ditekan
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -40,13 +47,12 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        // Event untuk berpindah ke halaman login
         loginText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
-                finish(); // Menutup halaman register
+                finish();
             }
         });
     }
@@ -80,13 +86,21 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Simpan ke database atau lanjutkan proses registrasi
-        Toast.makeText(this, "Registrasi Berhasil!", Toast.LENGTH_SHORT).show();
+        // Proses registrasi dengan Firebase
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(RegisterActivity.this, "Registrasi berhasil!", Toast.LENGTH_SHORT).show();
 
-        // Berpindah ke halaman login setelah berhasil daftar
-        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(RegisterActivity.this, "Registrasi gagal: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 }
-

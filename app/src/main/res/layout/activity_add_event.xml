@@ -5,17 +5,69 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
+    <!-- App Bar with Gradient Background and Elevation -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#93dc5c">
+        android:background="@drawable/bg_category"
+        android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Tambah Event Baru"
-            app:titleTextColor="#FFFFFF" />
+            app:title=""
+            app:contentInsetStart="0dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <!-- App Logo with Animated Effect -->
+                <ImageView
+                    android:id="@+id/logoImage"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="App Logo"
+                    android:src="@drawable/logo_app"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <!-- App Title with Custom Font -->
+                <TextView
+                    android:id="@+id/appTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Masjid Finder"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.05"
+                    android:layout_marginStart="12dp"
+                    app:layout_constraintStart_toEndOf="@id/logoImage"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/appSubtitle"
+                    app:layout_constraintVertical_chainStyle="packed" />
+
+                <!-- Subtitle for additional context -->
+                <TextView
+                    android:id="@+id/appSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Temukan Masjid Terdekat"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:layout_marginStart="12dp"
+                    app:layout_constraintStart_toEndOf="@id/logoImage"
+                    app:layout_constraintTop_toBottomOf="@id/appTitle"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView

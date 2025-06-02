@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "339054228962",
+    "firebase_url": "https://masjidapp-9be4e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "masjidapp-9be4e",
+    "storage_bucket": "masjidapp-9be4e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339054228962:android:73790c5a9414a14bd7b5bb",
+        "android_client_info": {
+          "package_name": "com.example.masjidapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIQFk9DiHCITpLvC0D8XDCSEA82ZktWNc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

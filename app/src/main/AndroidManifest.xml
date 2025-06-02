@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -16,8 +17,9 @@
         android:theme="@style/Theme.Masjidapp"
         tools:targetApi="31">
         <activity
-            android:name=".EventDetailActivity"
-            android:exported="false" />
+            android:name=".MainActivity2"
+            android:exported="false" >
+        </activity>
         <activity
             android:name=".PrayerTimeDetailActivity"
             android:exported="false" /> <!-- Login Activity set as Launcher/Entry point -->
@@ -26,7 +28,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity> <!-- Register Activity -->
@@ -37,17 +38,20 @@
             android:name=".MainActivity"
             android:exported="true" />
         <activity
+            android:name=".EventDetailActivity"
+            android:exported="true" />
+        <activity
             android:name=".ListMasjidActivity"
             android:exported="false" />
         <activity
-            android:name=".profilMasjid"
-            android:exported="false" />
-        <activity
             android:name=".AddEventActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".UpdateEventActivity"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:exported="false" />
+        <activity android:name=".ListBukuActivity" />
     </application>
 
 </manifest>

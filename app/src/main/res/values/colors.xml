@@ -1,57 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Existing colors -->
-    <color name="primary">#4CAF50</color>
-    <color name="primary_dark">#388E3C</color>
+
     <color name="primary_light">#C8E6C9</color>
-    <color name="accent">#8BC34A</color>
+
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+
     <color name="divider">#BDBDBD</color>
 
-    <!-- New colors with different names -->
-    <color name="forest_green">#2E7D32</color>
-    <color name="mint_green">#AEDFB3</color>
-    <color name="lime">#CDDC39</color>
-    <color name="sage">#A3B18A</color>
-    <color name="olive">#808000</color>
+    <!-- Warna dasar -->
+    <color name="primary">#00695C</color>
+    <color name="primary_dark">#004D40</color>
+    <color name="accent">#009688</color>
 
-    <!-- Badge colors -->
-    <color name="badge_green">#10B981</color>
-    <color name="badge_blue">#3B82F6</color>
-    <color name="badge_purple">#8B5CF6</color>
-    <color name="badge_orange">#F59E0B</color>
-    <color name="badge_red">#EF4444</color>
+    <!-- Warna untuk navbar -->
+    <color name="nav_selected">#000000</color>
+    <color name="nav_unselected">#757575</color>
 
-    <!-- Background colors -->
-    <color name="background_light">#F8F9FA</color>
-    <color name="background_card">#FFFFFF</color>
-    <color name="background_dark">#1F2937</color>
+    <!-- Warna standard -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
-    <!-- Status colors -->
-    <color name="success">#22C55E</color>
-    <color name="warning">#F97316</color>
-    <color name="error">#DC2626</color>
-    <color name="info">#0EA5E9</color>
 
-    <!-- Surface colors -->
-    <color name="surface_1">#F9FAFB</color>
-    <color name="surface_2">#F3F4F6</color>
-    <color name="surface_3">#E5E7EB</color>
+    <color name="main">#93dc5c</color>
+    <color name="btn">#b7e892</color>
 
-    <!-- Gradient colors -->
-    <color name="gradient_start">#4CAF50</color>
-    <color name="gradient_end">#8BC34A</color>
-
-    <!-- Text colors -->
-    <color name="text_light">#9CA3AF</color>
-    <color name="text_inverse">#FFFFFF</color>
-    <color name="text_disabled">#D1D5DB</color>
-
-    <!-- Button colors -->
-    <color name="button_primary">#4CAF50</color>
-    <color name="button_secondary">#9CA3AF</color>
-    <color name="button_danger">#EF4444</color>
 </resources>
+

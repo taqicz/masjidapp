@@ -1,64 +1,140 @@
 package com.example.masjidapp;
 
 import android.os.Bundle;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link BeritaFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class BeritaFragment extends Fragment {
+    private RecyclerView recyclerViewTrending;
+    private RecyclerView recyclerViewArtikel;
+    private BeritaTrendingAdapter trendingAdapter;
+    private BeritaArtikelAdapter artikelAdapter;
+    private List<BeritaTrendingModel> trendingList;
+    private List<BeritaArtikelModel> artikelList;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public BeritaFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment BeritaFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static BeritaFragment newInstance(String param1, String param2) {
-        BeritaFragment fragment = new BeritaFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    public BeritaFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
+        trendingList = new ArrayList<>();
+        trendingList.add(new BeritaTrendingModel("Politik", "Kebijakan Baru Pemerintah"));
+        trendingList.add(new BeritaTrendingModel("Ekonomi", "Inflasi Menurun di Kuartal Pertama"));
+        trendingList.add(new BeritaTrendingModel("Teknologi", "AI Meningkatkan Produktivitas"));
+        trendingList.add(new BeritaTrendingModel("Olahraga", "Tim Nasional Raih Kemenangan"));
+        trendingList.add(new BeritaTrendingModel("Hiburan", "Film Baru Pecahkan Rekor"));
+
+        artikelList = new ArrayList<>();
+        artikelList.add(new BeritaArtikelModel("Sejarah Masjid", "Masjid ini dibangun pada abad ke-18 dengan arsitektur tradisional...", "Sejarah"));
+        artikelList.add(new BeritaArtikelModel("Kajian Rutin", "Jangan lewatkan kajian rutin setiap Jumat malam di masjid...", "Kajian"));
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_berita, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_berita, container, false);
+
+        recyclerViewTrending = view.findViewById(R.id.recyclerViewTrending);
+        recyclerViewArtikel = view.findViewById(R.id.recyclerViewArtikel);
+
+        trendingAdapter = new BeritaTrendingAdapter(trendingList);
+        artikelAdapter = new BeritaArtikelAdapter(artikelList);
+
+        // ✅ Listener hapus
+        artikelAdapter.setOnDeleteClickListener(position -> {
+            artikelList.remove(position);
+            artikelAdapter.notifyItemRemoved(position);
+        });
+
+        recyclerViewTrending.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        recyclerViewTrending.setAdapter(trendingAdapter);
+
+        recyclerViewArtikel.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerViewArtikel.setAdapter(artikelAdapter);
+
+        Button buttonAdd = view.findViewById(R.id.berita_add);
+        buttonAdd.setOnClickListener(v -> {
+            fragment_berita_artikel fragment = new fragment_berita_artikel();
+            fragment.setOnArtikelSubmitListener((judul, isi, kategori, isUpdate, updatePosition) -> {
+                if (isUpdate && updatePosition >= 0) {
+                    BeritaArtikelModel model = artikelList.get(updatePosition);
+                    model.setTitle(judul);
+                    model.setContent(isi);
+                    model.setKategori(kategori);
+                    artikelAdapter.notifyItemChanged(updatePosition);
+                } else {
+                    artikelList.add(new BeritaArtikelModel(judul, isi, kategori));
+                    artikelAdapter.notifyItemInserted(artikelList.size() - 1);
+                }
+            });
+
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
+        // Long press untuk mengedit
+        artikelAdapter.setOnItemLongClickListener(position -> {
+            fragment_berita_artikel fragment = new fragment_berita_artikel();
+            BeritaArtikelModel artikel = artikelList.get(position);
+
+            Bundle bundle = new Bundle();
+            bundle.putString("judul", artikel.getTitle());
+            bundle.putString("isi", artikel.getContent());
+            bundle.putString("kategori", artikel.getKategori());
+
+            fragment.setArguments(bundle);
+            fragment.setOnArtikelSubmitListener((judul, isi, kategori, isUpdate, updatePosition) -> {
+                if (isUpdate && updatePosition >= 0) {
+                    BeritaArtikelModel model = artikelList.get(updatePosition);
+                    model.setTitle(judul);
+                    model.setContent(isi);
+                    model.setKategori(kategori);
+                    artikelAdapter.notifyItemChanged(updatePosition);
+                } else {
+                    artikelList.add(new BeritaArtikelModel(judul, isi, kategori));
+                    artikelAdapter.notifyItemInserted(artikelList.size() - 1);
+                }
+            });
+
+            fragment.setArtikelToEdit(artikel, position);
+
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, fragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
+        // Klik biasa untuk buka detail
+        artikelAdapter.setOnItemClickListener(position -> {
+            BeritaArtikelModel artikel = artikelList.get(position);
+            BeritaDetailFragment detailFragment = new BeritaDetailFragment();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("judul", artikel.getTitle());
+            bundle.putString("isi", artikel.getContent());
+            bundle.putString("kategori", artikel.getKategori());
+
+            detailFragment.setArguments(bundle);
+
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, detailFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        });
+
+        return view;
     }
 }
