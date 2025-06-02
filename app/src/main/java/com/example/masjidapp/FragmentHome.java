@@ -9,7 +9,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -74,42 +80,30 @@ public class FragmentHome extends Fragment {
         eventsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        List<EventModel> eventList = new ArrayList<>();
-        eventList.add(new EventModel(
-                "Pengajian Akbar",
-                "Masjid Jami",
-                "Minggu, 16 Juni 2023",
-                "09:00",
-                "11:30",
-                "Pengajian",
-                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
-                "Acara pengajian akbar yang akan dihadiri oleh para ustadz terkemuka."
-        ));
-
-        eventList.add(new EventModel(
-                "Buka Puasa Bersama",
-                "Masjid Al-Hikmah",
-                "Senin, 18 Juni 2023",
-                "17:30",
-                "19:00",
-                "Buka Puasa",
-                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
-                "Buka puasa bersama masyarakat sekitar masjid untuk meningkatkan silaturahmi."
-        ));
-
-        eventList.add(new EventModel(
-                "Shalat Taraweh",
-                "Masjid Baitul Rahman",
-                "Selasa, 19 Juni 2023",
-                "20:00",
-                "21:30",
-                "Taraweh",
-                "android.resource://" + getActivity().getPackageName() + "/drawable/default_event_image",  // Gambar default
-                "Shalat taraweh berjamaah setiap malam selama bulan Ramadhan."
-        ));
-
+        ArrayList<EventModel> eventList = new ArrayList<>();
         EventAdapter adapter = new EventAdapter(getContext(), eventList);
         eventsRecyclerView.setAdapter(adapter);
+
+        DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference("events");
+
+        eventsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                eventList.clear(); // Kosongkan list sebelum diisi ulang
+                for (DataSnapshot eventSnapshot : snapshot.getChildren()) {
+                    EventModel event = eventSnapshot.getValue(EventModel.class);
+                    if (event != null) {
+                        eventList.add(event);
+                    }
+                }
+                adapter.notifyDataSetChanged(); // Update RecyclerView setelah data dimuat
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Gagal memuat data event", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupMosquesRecyclerView() {
@@ -151,5 +145,5 @@ public class FragmentHome extends Fragment {
             Intent intent = new Intent(getActivity(), ListBukuActivity.class);
             startActivity(intent);
         });
-    }}
-
+    }
+}

@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.credentials)
     implementation(libs.credentials.play.services.auth)
     implementation(libs.googleid)
+    implementation(libs.firebase.database)
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+
 
     // Testing Libraries
     testImplementation(libs.junit)
