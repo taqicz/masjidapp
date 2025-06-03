@@ -1,101 +1,143 @@
 package com.example.masjidapp;
 
 import android.app.AlertDialog;
-import android.widget.EditText;
-import android.widget.RatingBar;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class profilMasjid extends AppCompatActivity {
 
-    private TextView tvNamaMasjid, tvDeskripsi;
-    private TextView tvTanggalBerdiri, tvAlamat, tvKetuaTakmir;
+    private TextView tvNamaMasjidDiToolbar;
+    private TextView tvDeskripsi, tvTanggalBerdiri, tvAlamat, tvKetuaTakmir;
     private ImageView imgMasjid;
+    private Toolbar toolbar;
+    private String mosqueNameForFirebase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_masjid);
 
-        // Menghubungkan elemen UI dengan komponen di layout
-        tvNamaMasjid = findViewById(R.id.tvNamaMasjid);
+        // Setup Toolbar
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        // Hubungkan elemen UI
+        tvNamaMasjidDiToolbar = findViewById(R.id.tvNamaMasjid);
         imgMasjid = findViewById(R.id.imgMasjid);
         tvDeskripsi = findViewById(R.id.tvDeskripsi);
         tvTanggalBerdiri = findViewById(R.id.tvTanggalBerdiri);
         tvAlamat = findViewById(R.id.tvAlamat);
         tvKetuaTakmir = findViewById(R.id.tvKetuaTakmir);
 
-        // Mendapatkan data yang dikirimkan melalui Intent
+        // Ambil data dari Intent
         Intent intent = getIntent();
-        String masjidName = intent.getStringExtra("masjidName");
-        String masjidAddress = intent.getStringExtra("masjidAddress");
-        String masjidImageUrl = intent.getStringExtra("masjidImageUrl");
-        float masjidRating = intent.getFloatExtra("masjidRating", 0f);
-        String description = intent.getStringExtra("descriptionMasjid");
-        if (description != null && !description.isEmpty()) {
-            tvDeskripsi.setText(description);
+        String masjidName = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_NAME);
+        String masjidAddress = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_ADDRESS);
+        String masjidImageUrl = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_IMAGE_URL);
+        float masjidRating = intent.getFloatExtra(SearchFragment.EXTRA_MOSQUE_RATING, 0f);
+        String masjidDescription = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_DESCRIPTION);
+        String masjidEstablishedDate = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_ESTABLISHED_DATE);
+        String masjidChairman = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_CHAIRMAN);
+
+        mosqueNameForFirebase = masjidName; // key untuk update/delete
+
+        // Set data ke UI, dengan fallback jika kosong/null
+        tvNamaMasjidDiToolbar.setText(nonNull(masjidName, "Nama masjid tidak tersedia"));
+        tvAlamat.setText(nonNull(masjidAddress, "Alamat tidak tersedia"));
+        tvDeskripsi.setText(nonNull(masjidDescription, "Deskripsi tidak tersedia."));
+        tvTanggalBerdiri.setText(nonNull(masjidEstablishedDate, "Tanggal berdiri tidak tersedia"));
+        tvKetuaTakmir.setText(nonNull(masjidChairman, "Ketua takmir tidak tersedia"));
+
+        // Load gambar dari URL
+        if (masjidImageUrl != null && !masjidImageUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(masjidImageUrl)
+                    .placeholder(R.drawable.sample_masjid)
+                    .error(R.drawable.sample_masjid)
+                    .into(imgMasjid);
         } else {
-            tvDeskripsi.setText("Rating: " + masjidRating); // Fallback ke rating jika deskripsi tidak ada
+            imgMasjid.setImageResource(R.drawable.sample_masjid);
         }
 
-        // Menampilkan data di UI
-        tvNamaMasjid.setText(masjidName);
-        tvAlamat.setText("Alamat: " + masjidAddress);
-        tvDeskripsi.setText("Rating: " + masjidRating);
-
-        // TODO: Load image from masjidImageUrl ke imgMasjid jika pakai Glide/Picasso
-
+        // Infaq
         Button btnInfaq = findViewById(R.id.btnInfaq);
         btnInfaq.setOnClickListener(v -> {
             Toast.makeText(this, "Terima kasih atas niat baik Anda untuk berinfaq 😊", Toast.LENGTH_SHORT).show();
-            Intent intent1 = new Intent(this, Donasi.class);
-            startActivity(intent1);
+            startActivity(new Intent(this, Donasi.class));
         });
 
+        // Update Rating
         Button btnUpdateRating = findViewById(R.id.btnUpdateRating);
         btnUpdateRating.setOnClickListener(v -> {
-            // Dialog input rating
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Update Rating Masjid");
-
-            RatingBar ratingBar = new RatingBar(this);
+            // Inflate layout dialog_rating.xml
+            android.view.LayoutInflater inflater = getLayoutInflater();
+            android.view.View dialogView = inflater.inflate(R.layout.dialog_rating, null);
+            RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
             ratingBar.setNumStars(5);
             ratingBar.setStepSize(0.5f);
             ratingBar.setRating(masjidRating);
 
-            builder.setView(ratingBar);
-
-            builder.setPositiveButton("Update", (dialog, which) -> {
-                float newRating = ratingBar.getRating();
-                tvDeskripsi.setText("Rating: " + newRating);
-                Toast.makeText(this, "Rating diperbarui ke: " + newRating, Toast.LENGTH_SHORT).show();
-                // TODO: Kirim ke server jika pakai database
-            });
-
-            builder.setNegativeButton("Batal", null);
-            builder.show();
-        });
-
-        Button btnDelete = findViewById(R.id.btnDelete);
-        btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
-                    .setTitle("Hapus Masjid")
-                    .setMessage("Apakah Anda yakin ingin menghapus masjid ini?")
-                    .setPositiveButton("Ya", (dialog, which) -> {
-                        Toast.makeText(this, "Masjid telah dihapus.", Toast.LENGTH_SHORT).show();
-                        // TODO: Delete dari database jika perlu
-                        finish(); // Kembali ke activity sebelumnya
+                    .setTitle("Update Rating Masjid")
+                    .setView(dialogView)
+                    .setPositiveButton("Update", (dialog, which) -> {
+                        float newRating = ratingBar.getRating();
+                        // Update ke Firebase
+                        if (mosqueNameForFirebase != null) {
+                            DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("masjid");
+                            databaseRef.child(mosqueNameForFirebase).child("rating").setValue(newRating)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Rating diperbarui ke: " + newRating, Toast.LENGTH_SHORT).show();
+                                        tvDeskripsi.setText("Rating: " + newRating); // Opsional, update UI
+                                    })
+                                    .addOnFailureListener(e -> Toast.makeText(this, "Gagal update rating", Toast.LENGTH_SHORT).show());
+                        }
                     })
                     .setNegativeButton("Batal", null)
                     .show();
         });
 
+        // Delete
+        Button btnDelete = findViewById(R.id.btnDelete);
+        btnDelete.setOnClickListener(v -> {
+            new AlertDialog.Builder(this)
+                    .setTitle("Hapus Masjid")
+                    .setMessage("Apakah Anda yakin ingin menghapus masjid '" + nonNull(masjidName, "-") + "'?")
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        if (mosqueNameForFirebase != null) {
+                            DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("masjid");
+                            databaseRef.child(mosqueNameForFirebase).removeValue()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(this, "Masjid '" + masjidName + "' telah dihapus.", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> Toast.makeText(this, "Gagal menghapus masjid.", Toast.LENGTH_SHORT).show());
+                        }
+                    })
+                    .setNegativeButton("Batal", null)
+                    .show();
+        });
+    }
+
+    // Helper untuk fallback jika null
+    private String nonNull(String value, String fallback) {
+        return (value != null && !value.isEmpty()) ? value : fallback;
     }
 }
