@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Masjidapp" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
+    <!-- Base application theme, HARUS turun dari MaterialComponents agar MaterialButton, dll. tidak crash! -->
+    <style name="Base.Theme.Masjidapp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -13,7 +13,7 @@
     <style name="Theme.Masjidapp" parent="Base.Theme.Masjidapp" />
 
     <!-- Style khusus untuk BottomNavigationView -->
-    <style name="Widget.App.BottomNavigationView" parent="Widget.Design.BottomNavigationView">
+    <style name="Widget.App.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView">
         <item name="itemIconTint">@drawable/nav_item_color_selector</item>
         <item name="itemTextColor">@drawable/nav_item_color_selector</item>
     </style>
