@@ -13,19 +13,6 @@
         android:orientation="vertical">
 
         <!-- AppBar untuk Navigasi -->
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/primary">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:layout_marginTop="16dp"
-                app:title="Daftar Event"
-                app:titleTextColor="@android:color/white" />
-        </com.google.android.material.appbar.AppBarLayout>
 
         <!-- RecyclerView untuk daftar event -->
         <androidx.recyclerview.widget.RecyclerView

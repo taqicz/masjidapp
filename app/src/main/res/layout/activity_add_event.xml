@@ -3,9 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="@color/white">
 
-    <!-- App Bar with Gradient Background and Elevation -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,7 +24,6 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp">
 
-                <!-- App Logo with Animated Effect -->
                 <ImageView
                     android:id="@+id/logoImage"
                     android:layout_width="50dp"
@@ -36,13 +34,12 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
 
-                <!-- App Title with Custom Font -->
                 <TextView
                     android:id="@+id/appTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Masjid Finder"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
@@ -53,7 +50,6 @@
                     app:layout_constraintBottom_toTopOf="@id/appSubtitle"
                     app:layout_constraintVertical_chainStyle="packed" />
 
-                <!-- Subtitle for additional context -->
                 <TextView
                     android:id="@+id/appSubtitle"
                     android:layout_width="wrap_content"
@@ -99,7 +95,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Detail Event"
-                        android:textColor="#93dc5c"
+                        android:textColor="@color/main"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
@@ -109,7 +105,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxStrokeColor="#93dc5c">
+                        app:boxStrokeColor="@color/main">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEventTitle"
@@ -123,7 +119,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxStrokeColor="#93dc5c">
+                        app:boxStrokeColor="@color/main">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEventLocation"
@@ -132,13 +128,12 @@
                             android:hint="Lokasi Event" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Kolom Tipe Event -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxStrokeColor="#93dc5c">
+                        app:boxStrokeColor="@color/main">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEventType"
@@ -147,13 +142,12 @@
                             android:hint="Tipe Event (kajian, bakti sosial, dll)" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Kolom Deskripsi Event -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxStrokeColor="#93dc5c">
+                        app:boxStrokeColor="@color/main">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEventDescription"
@@ -186,7 +180,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Gambar Event"
-                        android:textColor="#93dc5c"
+                        android:textColor="@color/main"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
@@ -196,7 +190,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         android:scaleType="centerCrop"
-                        android:background="#eeeeee"
+                        android:background="@color/primary_light"
                         android:contentDescription="Preview Gambar Event"
                         android:layout_marginBottom="16dp"
                         android:src="@drawable/ic_image_placeholder" />
@@ -208,8 +202,8 @@
                         android:text="Pilih Gambar"
                         app:icon="@drawable/ic_upload"
                         app:iconPadding="8dp"
-                        android:textColor="#FFFFFF"
-                        android:backgroundTint="#93dc5c" />
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/main" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -231,7 +225,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Waktu Event"
-                        android:textColor="#93dc5c"
+                        android:textColor="@color/main"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp" />
@@ -241,7 +235,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxStrokeColor="#93dc5c">
+                        app:boxStrokeColor="@color/main">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEventDate"
@@ -251,13 +245,12 @@
                             android:focusable="false" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Kolom Waktu Mulai -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                        app:boxStrokeColor="#93dc5c">
+                        app:boxStrokeColor="@color/main">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etEventStartTime"
@@ -270,7 +263,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Tombol Simpan -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveEvent"
                 android:layout_width="match_parent"
@@ -279,8 +271,8 @@
                 android:textSize="16sp"
                 android:textAllCaps="false"
                 app:cornerRadius="12dp"
-                android:backgroundTint="#b7e892"
-                android:textColor="#FFFFFF" />
+                android:backgroundTint="@color/btn"
+                android:textColor="@color/white" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

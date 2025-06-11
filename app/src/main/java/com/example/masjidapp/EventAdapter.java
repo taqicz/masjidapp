@@ -61,9 +61,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         // Handle click to navigate to EventDetailActivity
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailActivity.class);
-            intent.putExtra("EVENT_DETAIL", event);  // Passing the event data to EventDetailActivity
-            context.startActivity(intent);  // Start the activity
+            intent.putExtra("EVENT_DETAIL", event);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //
+            context.startActivity(intent);
         });
+
 
         // Handle update button click
         holder.btnUpdate.setOnClickListener(v -> {

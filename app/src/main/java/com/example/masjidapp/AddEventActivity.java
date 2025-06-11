@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
@@ -19,13 +20,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.UUID;
 
 public class AddEventActivity extends AppCompatActivity {
 
     private TextInputEditText etTitle, etLocation, etType, etDescription, etDate, etTime;
     private ImageView ivImage;
-    private MaterialButton btnSave;
+    private MaterialButton btnSave, btnUploadImage;
     private Uri selectedImageUri;
     private String startHour = "", endHour = "";
 
@@ -45,10 +45,13 @@ public class AddEventActivity extends AppCompatActivity {
         etTime = findViewById(R.id.etEventStartTime);
         ivImage = findViewById(R.id.ivEventImage);
         btnSave = findViewById(R.id.btnSaveEvent);
+        btnUploadImage = findViewById(R.id.btnUploadImage); // Inisialisasi tombol upload
 
         eventRef = FirebaseDatabase.getInstance().getReference("events");
 
+        // Aksi klik
         ivImage.setOnClickListener(v -> pickImage());
+        btnUploadImage.setOnClickListener(v -> pickImage()); // Tombol juga bisa pilih gambar
         etDate.setOnClickListener(v -> showDatePicker());
         etTime.setOnClickListener(v -> showTimePickerStart());
         btnSave.setOnClickListener(v -> saveEvent());
@@ -81,19 +84,31 @@ public class AddEventActivity extends AppCompatActivity {
     }
 
     private void pickImage() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         startActivityForResult(intent, IMAGE_PICK_CODE);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_PICK_CODE && resultCode == RESULT_OK && data != null) {
+        if (requestCode == IMAGE_PICK_CODE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             selectedImageUri = data.getData();
-            ivImage.setImageURI(selectedImageUri);
+
+            // Simpan izin akses persisten
+            final int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            getContentResolver().takePersistableUriPermission(selectedImageUri, takeFlags);
+
+            Glide.with(this)
+                    .load(selectedImageUri)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_foreground)
+                    .into(ivImage);
         }
     }
+
 
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();

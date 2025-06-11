@@ -1,18 +1,50 @@
 package com.example.masjidapp;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Date;
 
 public class EventDetailActivity extends AppCompatActivity {
 
     private ImageView eventDetailImage;
-    private TextView eventDetailTitle, eventDetailLocation, eventDetailDate, eventDetailTime, eventDetailType, eventDetailDescription;
+    private TextView eventDetailTitle, eventDetailLocation, eventDetailDate,
+            eventDetailTime, eventDetailType, eventDetailDescription;
+    private ImageButton btnDownloadEvent;
+
+    private Bitmap bitmapToSave;
+
+    // Gunakan ActivityResult API modern
+    private final ActivityResultLauncher<Intent> createFileLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    if (uri != null && bitmapToSave != null) {
+                        saveBitmapToUri(uri);
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +59,7 @@ public class EventDetailActivity extends AppCompatActivity {
         eventDetailTime = findViewById(R.id.eventDetailTime);
         eventDetailType = findViewById(R.id.eventDetailType);
         eventDetailDescription = findViewById(R.id.eventDetailDescription);
+        btnDownloadEvent = findViewById(R.id.btnDownloadEvent);
 
         // Ambil data EventModel dari Intent
         Intent intent = getIntent();
@@ -42,14 +75,58 @@ public class EventDetailActivity extends AppCompatActivity {
             eventDetailType.setText("Type: " + event.getType());
             eventDetailDescription.setText(event.getDescription());
 
-            // Load event image with Glide
             if (event.getImageUri() != null && !event.getImageUri().isEmpty()) {
+                Uri imageUri = Uri.parse(event.getImageUri());
+                Log.d("EVENT_DEBUG", "Image URI: " + event.getImageUri());
+
                 Glide.with(this)
-                        .load(event.getImageUri())
+                        .load(imageUri)
+                        .apply(new RequestOptions()
+                                .placeholder(R.drawable.default_event_image)
+                                .error(R.drawable.default_event_image)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .centerCrop())
                         .into(eventDetailImage);
             } else {
-                eventDetailImage.setImageResource(R.drawable.default_event_image); // Default image if no image URL
+                eventDetailImage.setImageResource(R.drawable.default_event_image);
             }
+        }
+
+        // Tombol download -> ambil screenshot -> minta lokasi simpan
+        View rootView = getWindow().getDecorView().getRootView();
+        btnDownloadEvent.setOnClickListener(v -> {
+            bitmapToSave = takeScreenshot(rootView);
+            if (bitmapToSave != null) {
+                launchCreateFileIntent();
+            } else {
+                Toast.makeText(this, "Gagal mengambil screenshot", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private Bitmap takeScreenshot(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
+    }
+
+    private void launchCreateFileIntent() {
+        String fileName = "event_" + new Date().getTime() + ".png";
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/png");
+        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        createFileLauncher.launch(intent);
+    }
+
+    private void saveBitmapToUri(Uri uri) {
+        try (OutputStream out = getContentResolver().openOutputStream(uri)) {
+            bitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, out);
+            Toast.makeText(this, "Gambar berhasil disimpan!", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Gagal menyimpan gambar", Toast.LENGTH_SHORT).show();
         }
     }
 }

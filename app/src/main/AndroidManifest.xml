@@ -45,13 +45,12 @@
             android:exported="false" />
         <activity
             android:name=".AddEventActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".UpdateEventActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
             android:exported="false" />
-        <activity android:name=".ListBukuActivity" />
     </application>
 
 </manifest>
