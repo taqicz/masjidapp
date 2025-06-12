@@ -1,6 +1,5 @@
 package com.example.masjidapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,9 +28,6 @@ public class EventFragment extends Fragment {
     private EventAdapter eventAdapter;
     private DatabaseReference eventRef;
 
-    private static final int REQUEST_ADD_EVENT = 1;
-    private static final int REQUEST_UPDATE_EVENT = 2;
-
     public EventFragment() {}
 
     @Override
@@ -45,32 +42,27 @@ public class EventFragment extends Fragment {
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         setupEventsRecyclerView();
 
-        // Inisialisasi Firebase Reference
         eventRef = FirebaseDatabase.getInstance().getReference("events");
-
-        // Ambil data dari Firebase
         loadEventsFromFirebase();
 
-        // FAB tambah event
         FloatingActionButton fabAddEvent = view.findViewById(R.id.fab_add_event);
         fabAddEvent.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), AddEventActivity.class);
-            startActivityForResult(intent, REQUEST_ADD_EVENT);
+            openFragment(new AddEventFragment());
         });
     }
 
     private void setupEventsRecyclerView() {
         eventsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 1));
-
         eventList = new ArrayList<>();
         eventAdapter = new EventAdapter(getContext(), eventList);
 
         // Tombol update
         eventAdapter.setOnEventUpdateClickListener((event, position) -> {
-            Intent intent = new Intent(getContext(), UpdateEventActivity.class);
-            intent.putExtra("EVENT", event);
-            intent.putExtra("EVENT_POSITION", position);
-            startActivityForResult(intent, REQUEST_UPDATE_EVENT);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("EVENT", event);
+            UpdateEventFragment updateFragment = new UpdateEventFragment();
+            updateFragment.setArguments(bundle);
+            openFragment(updateFragment);
         });
 
         // Tombol delete
@@ -102,14 +94,15 @@ public class EventFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle error (bisa ditambahkan log atau Toast)
+                // Error handling bisa ditambahkan di sini
             }
         });
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // Tidak perlu menangani hasil secara manual karena Firebase akan update otomatis
+    private void openFragment(Fragment fragment) {
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // Pastikan container ID ini sesuai di layout Activity
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

@@ -1,22 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileFragment">
+    android:background="@color/white"
+    android:padding="16dp">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-</FrameLayout>
+        <!-- Avatar Profile -->
+        <ImageView
+            android:id="@+id/imgAvatar"
+            android:layout_width="113dp"
+            android:layout_height="124dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:padding="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/logo_app" />
+
+        <!-- Kutipan Islami -->
+        <TextView
+            android:id="@+id/tvIslamicQuote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="“Sesungguhnya bersama kesulitan ada kemudahan.” (QS. Al-Insyirah: 6)"
+            android:textSize="14sp"
+            android:textColor="@color/primary"
+            android:textStyle="italic"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"
+            android:paddingHorizontal="16dp" />
+
+        <!-- Judul Profil -->
+
+        <!-- Aksen Garis -->
+        <TextView
+            android:id="@+id/tvProfileTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:text="Profil Saya"
+            android:textColor="@color/primary_dark"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="48dp"
+            android:layout_height="3dp"
+            android:background="@color/primary"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Card Form -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            card_view:cardElevation="3dp"
+            card_view:cardCornerRadius="12dp"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/editName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nama Lengkap"
+                    android:inputType="textPersonName"
+                    android:drawableLeft="@android:drawable/ic_menu_edit"
+                    android:drawablePadding="10dp"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary" />
+
+                <Space android:layout_height="12dp" android:layout_width="match_parent" />
+
+                <EditText
+                    android:id="@+id/editEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email"
+                    android:enabled="false"
+                    android:drawableLeft="@android:drawable/ic_dialog_email"
+                    android:drawablePadding="10dp"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary" />
+
+                <Space android:layout_height="12dp" android:layout_width="match_parent" />
+
+                <EditText
+                    android:id="@+id/editPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nomor HP"
+                    android:inputType="phone"
+                    android:drawableLeft="@android:drawable/ic_menu_call"
+                    android:drawablePadding="10dp"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_secondary" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Buttons -->
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Simpan Perubahan"
+            android:textStyle="bold"
+            android:backgroundTint="@color/btn"
+            android:textColor="@color/primary_dark"
+            android:elevation="3dp"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp"
+            android:foreground="?android:attr/selectableItemBackground" />
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Logout"
+            android:textStyle="bold"
+            android:backgroundTint="@color/accent"
+            android:textColor="@color/white"
+            android:elevation="3dp"
+            android:padding="12dp"
+            android:foreground="?android:attr/selectableItemBackground" />
+    </LinearLayout>
+</ScrollView>

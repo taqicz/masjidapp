@@ -5,11 +5,17 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -21,7 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class AddEventActivity extends AppCompatActivity {
+public class AddEventFragment extends Fragment {
 
     private TextInputEditText etTitle, etLocation, etType, etDescription, etDate, etTime;
     private ImageView ivImage;
@@ -29,32 +35,57 @@ public class AddEventActivity extends AppCompatActivity {
     private Uri selectedImageUri;
     private String startHour = "", endHour = "";
 
-    private static final int IMAGE_PICK_CODE = 1001;
     private DatabaseReference eventRef;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_event);
+    private final ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                    selectedImageUri = result.getData().getData();
 
-        etTitle = findViewById(R.id.etEventTitle);
-        etLocation = findViewById(R.id.etEventLocation);
-        etType = findViewById(R.id.etEventType);
-        etDescription = findViewById(R.id.etEventDescription);
-        etDate = findViewById(R.id.etEventDate);
-        etTime = findViewById(R.id.etEventStartTime);
-        ivImage = findViewById(R.id.ivEventImage);
-        btnSave = findViewById(R.id.btnSaveEvent);
-        btnUploadImage = findViewById(R.id.btnUploadImage); // Inisialisasi tombol upload
+                    // Simpan izin akses persisten
+                    final int takeFlags = result.getData().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    requireContext().getContentResolver().takePersistableUriPermission(selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    Glide.with(requireContext())
+                            .load(selectedImageUri)
+                            .placeholder(R.drawable.ic_launcher_background)
+                            .error(R.drawable.ic_launcher_foreground)
+                            .into(ivImage);
+                }
+            });
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_add_event, container, false);
+
+        etTitle = view.findViewById(R.id.etEventTitle);
+        etLocation = view.findViewById(R.id.etEventLocation);
+        etType = view.findViewById(R.id.etEventType);
+        etDescription = view.findViewById(R.id.etEventDescription);
+        etDate = view.findViewById(R.id.etEventDate);
+        etTime = view.findViewById(R.id.etEventStartTime);
+        ivImage = view.findViewById(R.id.ivEventImage);
+        btnSave = view.findViewById(R.id.btnSaveEvent);
+        btnUploadImage = view.findViewById(R.id.btnUploadImage);
 
         eventRef = FirebaseDatabase.getInstance().getReference("events");
 
-        // Aksi klik
         ivImage.setOnClickListener(v -> pickImage());
-        btnUploadImage.setOnClickListener(v -> pickImage()); // Tombol juga bisa pilih gambar
+        btnUploadImage.setOnClickListener(v -> pickImage());
         etDate.setOnClickListener(v -> showDatePicker());
         etTime.setOnClickListener(v -> showTimePickerStart());
         btnSave.setOnClickListener(v -> saveEvent());
+
+        return view;
+    }
+
+    private void pickImage() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
     }
 
     private void saveEvent() {
@@ -70,49 +101,22 @@ public class AddEventActivity extends AppCompatActivity {
 
         if (title.isEmpty() || location.isEmpty() || type.isEmpty() || description.isEmpty() ||
                 date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()) {
-            Toast.makeText(this, "Semua field harus diisi", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Semua field harus diisi", Toast.LENGTH_SHORT).show();
             return;
         }
 
         EventModel event = new EventModel(id, title, location, date, startTime, endTime, type, imageUri, description);
         eventRef.child(id).setValue(event)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Event berhasil ditambahkan", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Toast.makeText(requireContext(), "Event berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                    requireActivity().onBackPressed();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Gagal menambahkan event", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Gagal menambahkan event", Toast.LENGTH_SHORT).show());
     }
-
-    private void pickImage() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        startActivityForResult(intent, IMAGE_PICK_CODE);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_PICK_CODE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            selectedImageUri = data.getData();
-
-            // Simpan izin akses persisten
-            final int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            getContentResolver().takePersistableUriPermission(selectedImageUri, takeFlags);
-
-            Glide.with(this)
-                    .load(selectedImageUri)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .error(R.drawable.ic_launcher_foreground)
-                    .into(ivImage);
-        }
-    }
-
 
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();
-        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+        new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
             Calendar selected = Calendar.getInstance();
             selected.set(year, month, dayOfMonth);
             String formatted = new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(selected.getTime());
@@ -122,10 +126,10 @@ public class AddEventActivity extends AppCompatActivity {
 
     private void showTimePickerStart() {
         Calendar calendar = Calendar.getInstance();
-        new TimePickerDialog(this, (view, hour, minute) -> {
+        new TimePickerDialog(requireContext(), (view, hour, minute) -> {
             startHour = String.format("%02d:%02d", hour, minute);
 
-            new TimePickerDialog(this, (view2, endHourOfDay, endMinute) -> {
+            new TimePickerDialog(requireContext(), (view2, endHourOfDay, endMinute) -> {
                 endHour = String.format("%02d:%02d", endHourOfDay, endMinute);
                 String fullTime = startHour + " - " + endHour + " WIB";
                 etTime.setText(fullTime);

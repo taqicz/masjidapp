@@ -6,11 +6,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -22,7 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class UpdateEventActivity extends AppCompatActivity {
+public class UpdateEventFragment extends Fragment {
 
     private TextInputEditText etTitle, etLocation, etType, etDescription, etDate, etTime;
     private ImageView ivImage;
@@ -34,72 +41,89 @@ public class UpdateEventActivity extends AppCompatActivity {
 
     private EventModel eventToEdit;
     private DatabaseReference eventRef;
-    private static final int IMAGE_PICK_CODE = 1001;
-    private static final String TAG = "UpdateEventActivity";
+    private static final String TAG = "UpdateEventFragment";
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_event);
+    private final ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
+                    selectedImageUri = result.getData().getData();
 
-        // Inisialisasi view
-        etTitle = findViewById(R.id.etEventTitle);
-        etLocation = findViewById(R.id.etEventLocation);
-        etType = findViewById(R.id.etEventType);
-        etDescription = findViewById(R.id.etEventDescription);
-        etDate = findViewById(R.id.etEventDate);
-        etTime = findViewById(R.id.etEventStartTime);
-        ivImage = findViewById(R.id.ivEventImage);
-        btnSave = findViewById(R.id.btnSaveEvent);
-        btnUploadImage = findViewById(R.id.btnUploadImage); // Tambahkan ini
+                    final int takeFlags = result.getData().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try {
+                        requireActivity().getContentResolver().takePersistableUriPermission(selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    } catch (SecurityException e) {
+                        Log.e(TAG, "Gagal mengambil izin URI: " + e.getMessage());
+                    }
 
-        // Firebase reference
-        eventRef = FirebaseDatabase.getInstance().getReference("events");
-
-        // Ambil data event yang akan diedit
-        eventToEdit = (EventModel) getIntent().getSerializableExtra("EVENT");
-
-        if (eventToEdit != null) {
-            etTitle.setText(eventToEdit.getTitle());
-            etLocation.setText(eventToEdit.getLocation());
-            etType.setText(eventToEdit.getType());
-            etDescription.setText(eventToEdit.getDescription());
-            etDate.setText(eventToEdit.getDate());
-
-            if (eventToEdit.getStartTime() != null && eventToEdit.getEndTime() != null) {
-                etTime.setText(eventToEdit.getStartTime() + " - " + eventToEdit.getEndTime() + " WIB");
-            } else if (eventToEdit.getStartTime() != null) {
-                etTime.setText(eventToEdit.getStartTime() + " WIB");
-            }
-
-            currentImageUriString = eventToEdit.getImageUri();
-            if (currentImageUriString != null && !currentImageUriString.isEmpty()) {
-                selectedImageUri = Uri.parse(currentImageUriString);
-                try {
-                    Glide.with(this)
+                    Glide.with(requireContext())
                             .load(selectedImageUri)
                             .placeholder(R.drawable.ic_launcher_background)
                             .error(R.drawable.ic_launcher_foreground)
                             .into(ivImage);
-                } catch (Exception e) {
-                    Log.e(TAG, "Gagal memuat gambar sebelumnya", e);
+                }
+            });
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_update_event, container, false);
+
+        etTitle = view.findViewById(R.id.etEventTitle);
+        etLocation = view.findViewById(R.id.etEventLocation);
+        etType = view.findViewById(R.id.etEventType);
+        etDescription = view.findViewById(R.id.etEventDescription);
+        etDate = view.findViewById(R.id.etEventDate);
+        etTime = view.findViewById(R.id.etEventStartTime);
+        ivImage = view.findViewById(R.id.ivEventImage);
+        btnSave = view.findViewById(R.id.btnSaveEvent);
+        btnUploadImage = view.findViewById(R.id.btnUploadImage);
+
+        eventRef = FirebaseDatabase.getInstance().getReference("events");
+
+        if (getArguments() != null) {
+            eventToEdit = (EventModel) getArguments().getSerializable("EVENT");
+
+            if (eventToEdit != null) {
+                etTitle.setText(eventToEdit.getTitle());
+                etLocation.setText(eventToEdit.getLocation());
+                etType.setText(eventToEdit.getType());
+                etDescription.setText(eventToEdit.getDescription());
+                etDate.setText(eventToEdit.getDate());
+
+                if (eventToEdit.getStartTime() != null && eventToEdit.getEndTime() != null) {
+                    etTime.setText(eventToEdit.getStartTime() + " - " + eventToEdit.getEndTime() + " WIB");
+                } else if (eventToEdit.getStartTime() != null) {
+                    etTime.setText(eventToEdit.getStartTime() + " WIB");
+                }
+
+                currentImageUriString = eventToEdit.getImageUri();
+                if (currentImageUriString != null && !currentImageUriString.isEmpty()) {
+                    selectedImageUri = Uri.parse(currentImageUriString);
+                    try {
+                        Glide.with(requireContext())
+                                .load(selectedImageUri)
+                                .placeholder(R.drawable.ic_launcher_background)
+                                .error(R.drawable.ic_launcher_foreground)
+                                .into(ivImage);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Gagal memuat gambar sebelumnya", e);
+                        ivImage.setImageResource(R.drawable.ic_launcher_background);
+                    }
+                } else {
                     ivImage.setImageResource(R.drawable.ic_launcher_background);
                 }
             } else {
-                ivImage.setImageResource(R.drawable.ic_launcher_background);
+                Toast.makeText(requireContext(), "Event tidak ditemukan", Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(this, "Event tidak ditemukan", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
         }
 
-        // Listener
         ivImage.setOnClickListener(v -> pickImage());
-        btnUploadImage.setOnClickListener(v -> pickImage()); // Pemicu galeri dari tombol
+        btnUploadImage.setOnClickListener(v -> pickImage());
         etDate.setOnClickListener(v -> showDatePicker());
         etTime.setOnClickListener(v -> showTimePickerStart());
         btnSave.setOnClickListener(v -> updateEvent());
+
+        return view;
     }
 
     private void pickImage() {
@@ -107,33 +131,8 @@ public class UpdateEventActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-        startActivityForResult(intent, IMAGE_PICK_CODE);
+        imagePickerLauncher.launch(intent);
     }
-
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == IMAGE_PICK_CODE && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            selectedImageUri = data.getData();
-
-            // IZIN PERSISTEN untuk akses gambar lintas activity
-            final int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            try {
-                getContentResolver().takePersistableUriPermission(selectedImageUri, takeFlags);
-            } catch (SecurityException e) {
-                Log.e(TAG, "Gagal mengambil izin URI: " + e.getMessage());
-            }
-
-            Glide.with(this)
-                    .load(selectedImageUri)
-                    .placeholder(R.drawable.ic_launcher_background)
-                    .error(R.drawable.ic_launcher_foreground)
-                    .into(ivImage);
-        }
-    }
-
 
     private void updateEvent() {
         String title = etTitle.getText().toString().trim();
@@ -143,7 +142,7 @@ public class UpdateEventActivity extends AppCompatActivity {
         String date = etDate.getText().toString().trim();
 
         if (title.isEmpty() || location.isEmpty() || type.isEmpty() || description.isEmpty() || date.isEmpty() || (startHour.isEmpty() && eventToEdit.getStartTime() == null)) {
-            Toast.makeText(this, "Semua field harus diisi, termasuk waktu.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Semua field harus diisi, termasuk waktu.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -153,12 +152,8 @@ public class UpdateEventActivity extends AppCompatActivity {
         eventToEdit.setDescription(description);
         eventToEdit.setDate(date);
 
-        if (!startHour.isEmpty()) {
-            eventToEdit.setStartTime(startHour);
-        }
-        if (!endHour.isEmpty()) {
-            eventToEdit.setEndTime(endHour);
-        }
+        if (!startHour.isEmpty()) eventToEdit.setStartTime(startHour);
+        if (!endHour.isEmpty()) eventToEdit.setEndTime(endHour);
 
         if (selectedImageUri != null && (currentImageUriString == null || !selectedImageUri.toString().equals(currentImageUriString))) {
             eventToEdit.setImageUri(selectedImageUri.toString());
@@ -166,15 +161,15 @@ public class UpdateEventActivity extends AppCompatActivity {
 
         eventRef.child(eventToEdit.getId()).setValue(eventToEdit)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(UpdateEventActivity.this, "Event berhasil diperbarui", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Toast.makeText(requireContext(), "Event berhasil diperbarui", Toast.LENGTH_SHORT).show();
+                    requireActivity().onBackPressed();
                 })
-                .addOnFailureListener(e -> Toast.makeText(UpdateEventActivity.this, "Gagal memperbarui event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Gagal memperbarui event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();
-        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+        new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
             Calendar selected = Calendar.getInstance();
             selected.set(year, month, dayOfMonth);
             String formatted = new SimpleDateFormat("EEEE, dd MMMM yyyy", new Locale("id", "ID")).format(selected.getTime());
@@ -197,7 +192,7 @@ public class UpdateEventActivity extends AppCompatActivity {
             }
         }
 
-        new TimePickerDialog(this, (view, hour, minute) -> {
+        new TimePickerDialog(requireContext(), (view, hour, minute) -> {
             startHour = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
 
             int initialEndHour = hour;
@@ -213,7 +208,7 @@ public class UpdateEventActivity extends AppCompatActivity {
                 }
             }
 
-            new TimePickerDialog(this, (view2, endHourOfDay, endMinute) -> {
+            new TimePickerDialog(requireContext(), (view2, endHourOfDay, endMinute) -> {
                 endHour = String.format(Locale.getDefault(), "%02d:%02d", endHourOfDay, endMinute);
                 etTime.setText(startHour + " - " + endHour + " WIB");
             }, initialEndHour, initialEndMinute, true).show();
