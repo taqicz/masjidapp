@@ -1,3 +1,4 @@
+// UpdateEventFragment.java
 package com.example.masjidapp;
 
 import android.app.DatePickerDialog;
@@ -20,6 +21,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
@@ -28,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
 
 public class UpdateEventFragment extends Fragment {
 
@@ -47,8 +52,6 @@ public class UpdateEventFragment extends Fragment {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                     selectedImageUri = result.getData().getData();
-
-                    final int takeFlags = result.getData().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     try {
                         requireActivity().getContentResolver().takePersistableUriPermission(selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     } catch (SecurityException e) {
@@ -98,17 +101,11 @@ public class UpdateEventFragment extends Fragment {
 
                 currentImageUriString = eventToEdit.getImageUri();
                 if (currentImageUriString != null && !currentImageUriString.isEmpty()) {
-                    selectedImageUri = Uri.parse(currentImageUriString);
-                    try {
-                        Glide.with(requireContext())
-                                .load(selectedImageUri)
-                                .placeholder(R.drawable.ic_launcher_background)
-                                .error(R.drawable.ic_launcher_foreground)
-                                .into(ivImage);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Gagal memuat gambar sebelumnya", e);
-                        ivImage.setImageResource(R.drawable.ic_launcher_background);
-                    }
+                    Glide.with(requireContext())
+                            .load(currentImageUriString)
+                            .placeholder(R.drawable.ic_launcher_background)
+                            .error(R.drawable.ic_launcher_foreground)
+                            .into(ivImage);
                 } else {
                     ivImage.setImageResource(R.drawable.ic_launcher_background);
                 }
@@ -151,14 +148,43 @@ public class UpdateEventFragment extends Fragment {
         eventToEdit.setType(type);
         eventToEdit.setDescription(description);
         eventToEdit.setDate(date);
-
         if (!startHour.isEmpty()) eventToEdit.setStartTime(startHour);
         if (!endHour.isEmpty()) eventToEdit.setEndTime(endHour);
 
+        // Upload image jika berbeda dari sebelumnya
         if (selectedImageUri != null && (currentImageUriString == null || !selectedImageUri.toString().equals(currentImageUriString))) {
-            eventToEdit.setImageUri(selectedImageUri.toString());
-        }
+            MediaManager.get().upload(selectedImageUri)
+                    .callback(new UploadCallback() {
+                        @Override
+                        public void onStart(String requestId) {
+                            Toast.makeText(requireContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
+                        }
 
+                        @Override
+                        public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                        @Override
+                        public void onSuccess(String requestId, Map resultData) {
+                            String imageUrl = resultData.get("secure_url").toString();
+                            eventToEdit.setImageUri(imageUrl);
+                            saveEventToFirebase();
+                        }
+
+                        @Override
+                        public void onError(String requestId, ErrorInfo error) {
+                            Toast.makeText(requireContext(), "Gagal upload gambar: " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onReschedule(String requestId, ErrorInfo error) {}
+                    }).dispatch();
+        } else {
+            // Gambar tidak diubah
+            saveEventToFirebase();
+        }
+    }
+
+    private void saveEventToFirebase() {
         eventRef.child(eventToEdit.getId()).setValue(eventToEdit)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(requireContext(), "Event berhasil diperbarui", Toast.LENGTH_SHORT).show();
@@ -182,36 +208,22 @@ public class UpdateEventFragment extends Fragment {
         int initialHour = calendar.get(Calendar.HOUR_OF_DAY);
         int initialMinute = calendar.get(Calendar.MINUTE);
 
-        if (eventToEdit != null && eventToEdit.getStartTime() != null && !eventToEdit.getStartTime().isEmpty()) {
+        if (eventToEdit != null && eventToEdit.getStartTime() != null) {
             try {
-                String[] timeParts = eventToEdit.getStartTime().split(":");
-                initialHour = Integer.parseInt(timeParts[0]);
-                initialMinute = Integer.parseInt(timeParts[1]);
-            } catch (Exception e) {
-                Log.w(TAG, "Gagal parse waktu mulai: " + eventToEdit.getStartTime());
-            }
+                String[] parts = eventToEdit.getStartTime().split(":");
+                initialHour = Integer.parseInt(parts[0]);
+                initialMinute = Integer.parseInt(parts[1]);
+            } catch (Exception ignored) {}
         }
 
-        new TimePickerDialog(requireContext(), (view, hour, minute) -> {
-            startHour = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
+        new TimePickerDialog(requireContext(), (view, hourOfDay, minute) -> {
+            startHour = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+            int endHourDefault = hourOfDay, endMinuteDefault = minute;
 
-            int initialEndHour = hour;
-            int initialEndMinute = minute;
-
-            if (eventToEdit != null && eventToEdit.getEndTime() != null && !eventToEdit.getEndTime().isEmpty()) {
-                try {
-                    String[] timeParts = eventToEdit.getEndTime().split(":");
-                    initialEndHour = Integer.parseInt(timeParts[0]);
-                    initialEndMinute = Integer.parseInt(timeParts[1]);
-                } catch (Exception e) {
-                    Log.w(TAG, "Gagal parse waktu selesai: " + eventToEdit.getEndTime());
-                }
-            }
-
-            new TimePickerDialog(requireContext(), (view2, endHourOfDay, endMinute) -> {
-                endHour = String.format(Locale.getDefault(), "%02d:%02d", endHourOfDay, endMinute);
+            new TimePickerDialog(requireContext(), (view2, endHourVal, endMinuteVal) -> {
+                endHour = String.format(Locale.getDefault(), "%02d:%02d", endHourVal, endMinuteVal);
                 etTime.setText(startHour + " - " + endHour + " WIB");
-            }, initialEndHour, initialEndMinute, true).show();
+            }, endHourDefault, endMinuteDefault, true).show();
 
         }, initialHour, initialMinute, true).show();
     }

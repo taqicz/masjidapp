@@ -5,10 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,10 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.io.IOException;
 import java.util.Date;
 
 public class EventDetailActivity extends AppCompatActivity {
@@ -31,11 +29,10 @@ public class EventDetailActivity extends AppCompatActivity {
     private ImageView eventDetailImage;
     private TextView eventDetailTitle, eventDetailLocation, eventDetailDate,
             eventDetailTime, eventDetailType, eventDetailDescription;
-    private ImageButton btnDownloadEvent;
+    private ExtendedFloatingActionButton btnDownloadEvent; // ✅ Revisi
 
     private Bitmap bitmapToSave;
 
-    // Gunakan ActivityResult API modern
     private final ActivityResultLauncher<Intent> createFileLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -51,7 +48,7 @@ public class EventDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
 
-        // Inisialisasi Views
+        // Inisialisasi View
         eventDetailImage = findViewById(R.id.eventDetailImage);
         eventDetailTitle = findViewById(R.id.eventDetailTitle);
         eventDetailLocation = findViewById(R.id.eventDetailLocation);
@@ -59,22 +56,23 @@ public class EventDetailActivity extends AppCompatActivity {
         eventDetailTime = findViewById(R.id.eventDetailTime);
         eventDetailType = findViewById(R.id.eventDetailType);
         eventDetailDescription = findViewById(R.id.eventDetailDescription);
-        btnDownloadEvent = findViewById(R.id.btnDownloadEvent);
+        btnDownloadEvent = findViewById(R.id.btnDownloadEvent); // ✅ Tidak perlu casting ke ImageButton
 
-        // Ambil data EventModel dari Intent
+        // Ambil data dari Intent
         Intent intent = getIntent();
         EventModel event = (EventModel) intent.getSerializableExtra("EVENT_DETAIL");
 
-        // Tampilkan data ke dalam views
         if (event != null) {
             eventDetailTitle.setText(event.getTitle());
-            eventDetailLocation.setText("Location: " + event.getLocation());
-            eventDetailDate.setText("Date: " + event.getDate());
-            String combinedTime = event.getStartTime() + " - " + event.getEndTime() + " WIB";
-            eventDetailTime.setText("Time: " + combinedTime);
-            eventDetailType.setText("Type: " + event.getType());
+            eventDetailLocation.setText(event.getLocation());
+            eventDetailDate.setText( event.getDate());
+
+            String time = event.getStartTime() + " - " + event.getEndTime() + " WIB";
+            eventDetailTime.setText(time);
+            eventDetailType.setText(event.getType());
             eventDetailDescription.setText(event.getDescription());
 
+            // Tampilkan gambar dari URL (Cloudinary)
             if (event.getImageUri() != null && !event.getImageUri().isEmpty()) {
                 Uri imageUri = Uri.parse(event.getImageUri());
                 Log.d("EVENT_DEBUG", "Image URI: " + event.getImageUri());
@@ -92,7 +90,7 @@ public class EventDetailActivity extends AppCompatActivity {
             }
         }
 
-        // Tombol download -> ambil screenshot -> minta lokasi simpan
+        // Ambil screenshot dan minta lokasi simpan
         View rootView = getWindow().getDecorView().getRootView();
         btnDownloadEvent.setOnClickListener(v -> {
             bitmapToSave = takeScreenshot(rootView);
