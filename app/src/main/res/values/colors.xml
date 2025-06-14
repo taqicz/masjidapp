@@ -28,5 +28,7 @@
     <color name="primary_color">#2196F3</color>
     <color name="accent_color">#FF5722</color>
     <color name="background_light">#F5F5F5</color>
+
+    <color name="gray">#808080</color>
 </resources>
 
