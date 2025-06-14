@@ -129,7 +129,6 @@ public class FragmentHome extends Fragment {
             intent.putExtra("MOSQUE_NAME", mosque.getName());
             intent.putExtra("MOSQUE_ADDRESS", mosque.getAddress());
             intent.putExtra("MOSQUE_RATING", mosque.getRating());
-            intent.putExtra("MOSQUE_DISTANCE", mosque.getDistance());
             intent.putExtra("MOSQUE_IMAGE_URL", mosque.getImageUrl());
             intent.putExtra("MOSQUE_DESCRIPTION", mosque.getDescription());
             intent.putExtra("MOSQUE_ESTABLISHED_DATE", mosque.getEstablishedDate());

@@ -14,6 +14,7 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -89,7 +90,6 @@ public class SearchFragment extends Fragment {
             intent.putExtra(EXTRA_MOSQUE_NAME, mosque.getName());
             intent.putExtra(EXTRA_MOSQUE_ADDRESS, mosque.getAddress());
             intent.putExtra(EXTRA_MOSQUE_RATING, mosque.getRating());
-            intent.putExtra(EXTRA_MOSQUE_DISTANCE, mosque.getDistance());
             intent.putExtra(EXTRA_MOSQUE_IMAGE_URL, mosque.getImageUrl());
             intent.putExtra(EXTRA_MOSQUE_DESCRIPTION, mosque.getDescription());
             intent.putExtra(EXTRA_MOSQUE_ESTABLISHED_DATE, mosque.getEstablishedDate());
@@ -107,8 +107,14 @@ public class SearchFragment extends Fragment {
     }
 
     private void setupAddButton() {
-        btnAdd.setOnClickListener(v -> showMosqueDialog(null));
+        btnAdd.setOnClickListener(v -> {
+            FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.fragment_container, new AddEditMosqueFragment()); // pastikan ID-nya sesuai
+            ft.addToBackStack(null);
+            ft.commit();
+        });
     }
+
 
     private void fetchDataFromFirebase() {
         databaseRef.addValueEventListener(new ValueEventListener() {
