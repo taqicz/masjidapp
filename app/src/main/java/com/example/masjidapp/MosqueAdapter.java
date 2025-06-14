@@ -42,7 +42,7 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         holder.mosqueAddress.setText(mosque.getAddress());
         holder.mosqueRating.setRating(mosque.getRating());
         holder.ratingText.setText(String.valueOf(mosque.getRating())); // Lebih aman pakai String.valueOf()
-        holder.mosqueDistance.setText(mosque.getDistance());
+
 
         // <-- 2. TAMBAHKAN LOGIKA UNTUK MEMUAT GAMBAR DI SINI
         Glide.with(context)
@@ -78,7 +78,6 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
             mosqueAddress = itemView.findViewById(R.id.masjidAddress);
             mosqueRating = itemView.findViewById(R.id.masjidRating);
             ratingText = itemView.findViewById(R.id.ratingText);
-            mosqueDistance = itemView.findViewById(R.id.masjidDistance);
         }
     }
 }

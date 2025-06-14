@@ -42,13 +42,6 @@
                 android:layout_gravity="bottom"
                 android:background="@drawable/gradient_overlay" />
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
             <TextView
                 android:id="@+id/tvNamaMasjid"
                 android:layout_width="wrap_content"
@@ -222,22 +215,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Tombol Infaq yang lebih menarik -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnInfaq"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_margin="16dp"
-                android:backgroundTint="@color/accent"
-                android:text="Berikan Infaq"
-                android:textColor="@android:color/white"
-                android:textAllCaps="false"
-                app:icon="@drawable/ic_favorite"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp"
-                app:cornerRadius="8dp"
-                app:elevation="6dp" />
 
             <!-- Tombol Update Rating -->
             <com.google.android.material.button.MaterialButton

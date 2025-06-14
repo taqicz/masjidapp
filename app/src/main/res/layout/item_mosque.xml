@@ -71,15 +71,6 @@
                     android:text="4.5 (120)"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/masjidDistance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="1.2 km"
-                    android:textColor="@color/accent"
-                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 

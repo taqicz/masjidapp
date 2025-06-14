@@ -51,13 +51,24 @@ public class FragmentHome extends Fragment {
         CardView prayerTimeCard = view.findViewById(R.id.prayerTimeCard);
         CardView btnLihatMasjidLainnya = view.findViewById(R.id.btnLihatMasjidLainnya);
 
-        // Set click listener untuk tombol
-        btnLihatMasjidLainnya.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), ListMasjidActivity.class);
+        // Klik "Lihat lainnya" untuk buku
+        btnLihatLainnya.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ListBukuActivity.class);
             startActivity(intent);
         });
 
-        // Event klik ke detail jadwal sholat
+        // Klik "Lihat masjid lainnya"
+        btnLihatMasjidLainnya.setOnClickListener(v -> {
+            Fragment searchFragment = new SearchFragment();
+            requireActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, searchFragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
+        // Klik ke detail jadwal sholat
         prayerTimeCard.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), PrayerTimeDetailActivity.class);
             startActivity(intent);
@@ -68,7 +79,7 @@ public class FragmentHome extends Fragment {
             Toast.makeText(getActivity(), "Notifikasi", Toast.LENGTH_SHORT).show();
         });
 
-        // Setup RecyclerView untuk event, masjid, dan buku
+        // Setup RecyclerView
         setupEventsRecyclerView();
         setupMosquesRecyclerView();
         setupBukuRecyclerView();
@@ -89,14 +100,14 @@ public class FragmentHome extends Fragment {
         eventsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                eventList.clear(); // Kosongkan list sebelum diisi ulang
+                eventList.clear();
                 for (DataSnapshot eventSnapshot : snapshot.getChildren()) {
                     EventModel event = eventSnapshot.getValue(EventModel.class);
                     if (event != null) {
                         eventList.add(event);
                     }
                 }
-                adapter.notifyDataSetChanged(); // Update RecyclerView setelah data dimuat
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -108,26 +119,51 @@ public class FragmentHome extends Fragment {
 
     private void setupMosquesRecyclerView() {
         mosquesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         List<MosqueModel> mosqueList = new ArrayList<>();
-        mosqueList.add(new MosqueModel("Masjid Al-Hikmah", "Jl. Masjid No. 123, Jakarta", 4.5f,  "https://example.com/image1.jpg", "Masjid Al-Hikmah adalah pusat kajian Islam.", "1995", "Ust. Ahmad"));
-        mosqueList.add(new MosqueModel("Masjid Jami", "Jl. Raya No. 45, Jakarta", 4.2f,  "https://example.com/image2.jpg", "Masjid Jami terkenal dengan khutbah Jumatnya.", "1980", "Ust. Budi"));
-        mosqueList.add(new MosqueModel("Masjid An-Nur", "Jl. Utama No. 67, Jakarta", 4.7f,  "https://example.com/image3.jpg", "Masjid An-Nur menyediakan program buka puasa.", "2005", "Ust. Zaki"));
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("masjid");
 
         MosqueAdapter adapter = new MosqueAdapter(getContext(), mosqueList, mosque -> {
             Intent intent = new Intent(getActivity(), profilMasjid.class);
-            intent.putExtra("masjidName", mosque.getName());
-            intent.putExtra("masjidAddress", mosque.getAddress());
-            intent.putExtra("imageUrl", mosque.getImageUrl());
-            intent.putExtra("masjidRating", mosque.getRating());
-            intent.putExtra("descriptionMasjid", mosque.getDescription());
-            intent.putExtra("establishedDate", mosque.getEstablishedDate());
-            intent.putExtra("masjidChairman", mosque.getChairman());
+            intent.putExtra("MOSQUE_ID", mosque.getId());
+            intent.putExtra("MOSQUE_NAME", mosque.getName());
+            intent.putExtra("MOSQUE_ADDRESS", mosque.getAddress());
+            intent.putExtra("MOSQUE_RATING", mosque.getRating());
+            intent.putExtra("MOSQUE_DISTANCE", mosque.getDistance());
+            intent.putExtra("MOSQUE_IMAGE_URL", mosque.getImageUrl());
+            intent.putExtra("MOSQUE_DESCRIPTION", mosque.getDescription());
+            intent.putExtra("MOSQUE_ESTABLISHED_DATE", mosque.getEstablishedDate());
+            intent.putExtra("MOSQUE_CHAIRMAN", mosque.getChairman());
             startActivity(intent);
         });
 
         mosquesRecyclerView.setAdapter(adapter);
+
+        databaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                mosqueList.clear();
+                int count = 0;
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (count >= 3) break;
+                    MosqueModel mosque = ds.getValue(MosqueModel.class);
+                    if (mosque != null) {
+                        mosque.setId(ds.getKey());
+                        mosqueList.add(mosque);
+                        count++;
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(), "Gagal mengambil data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
+
 
     private void setupBukuRecyclerView() {
         recyclerBuku.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -139,11 +175,5 @@ public class FragmentHome extends Fragment {
 
         BukuAdapter bukuAdapter = new BukuAdapter(getContext(), listBuku);
         recyclerBuku.setAdapter(bukuAdapter);
-
-        // Lihat lainnya
-        btnLihatLainnya.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), ListBukuActivity.class);
-            startActivity(intent);
-        });
     }
 }

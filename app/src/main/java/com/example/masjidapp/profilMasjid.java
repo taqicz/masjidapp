@@ -30,14 +30,6 @@ public class profilMasjid extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_masjid);
 
-        // Setup Toolbar
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
-
         // Hubungkan elemen UI
         tvNamaMasjidDiToolbar = findViewById(R.id.tvNamaMasjid);
         imgMasjid = findViewById(R.id.imgMasjid);
@@ -76,13 +68,6 @@ public class profilMasjid extends AppCompatActivity {
         } else {
             imgMasjid.setImageResource(R.drawable.sample_masjid);
         }
-
-        // Infaq
-        Button btnInfaq = findViewById(R.id.btnInfaq);
-        btnInfaq.setOnClickListener(v -> {
-            Toast.makeText(this, "Terima kasih atas niat baik Anda untuk berinfaq 😊", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, Donasi.class));
-        });
 
         // Update Rating
         Button btnUpdateRating = findViewById(R.id.btnUpdateRating);
