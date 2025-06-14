@@ -134,7 +134,7 @@ public class EventFragment extends Fragment {
         chipGroupFilter.removeAllViews();
 
         // Chip "Semua"
-        Chip allChip = new Chip(getContext());
+        Chip allChip = new Chip(requireContext());
         allChip.setText("Semua");
         allChip.setCheckable(true);
         allChip.setChecked(true); // default
@@ -142,7 +142,7 @@ public class EventFragment extends Fragment {
 
         // Chip dari type unik
         for (String type : types) {
-            Chip chip = new Chip(getContext());
+            Chip chip = new Chip(requireContext());
             chip.setText(type);
             chip.setCheckable(true);
             chipGroupFilter.addView(chip);
