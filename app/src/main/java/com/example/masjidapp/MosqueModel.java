@@ -21,12 +21,11 @@ public class MosqueModel {
     }
 
     // Constructor lengkap (sudah ada)
-    public MosqueModel(String name, String address, float rating, String distance, String imageUrl,
+    public MosqueModel(String name, String address, float rating,  String imageUrl,
                        String description, String establishedDate, String chairman) {
         this.name = name;
         this.address = address;
         this.rating = rating;
-        this.distance = distance;
         this.imageUrl = imageUrl;
         this.description = description;
         this.establishedDate = establishedDate;
@@ -35,7 +34,7 @@ public class MosqueModel {
 
     // Constructor lama (jika belum pakai semua data) - ini opsional, bisa dipertahankan jika masih dipakai
     public MosqueModel(String name, String address, float rating, String distance, String imageUrl) {
-        this(name, address, rating, distance, imageUrl, "", "", ""); // Memanggil constructor lengkap
+        this(name, address, rating, imageUrl, "", "", ""); // Memanggil constructor lengkap
     }
 
     public String getId() {

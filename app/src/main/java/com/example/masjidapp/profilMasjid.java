@@ -48,6 +48,7 @@ public class profilMasjid extends AppCompatActivity {
 
         // Ambil data dari Intent
         Intent intent = getIntent();
+        String mosqueId = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_ID);
         String masjidName = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_NAME);
         String masjidAddress = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_ADDRESS);
         String masjidImageUrl = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_IMAGE_URL);
@@ -56,7 +57,7 @@ public class profilMasjid extends AppCompatActivity {
         String masjidEstablishedDate = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_ESTABLISHED_DATE);
         String masjidChairman = intent.getStringExtra(SearchFragment.EXTRA_MOSQUE_CHAIRMAN);
 
-        mosqueNameForFirebase = masjidName; // key untuk update/delete
+        mosqueNameForFirebase = mosqueId; // key untuk update/delete
 
         // Set data ke UI, dengan fallback jika kosong/null
         tvNamaMasjidDiToolbar.setText(nonNull(masjidName, "Nama masjid tidak tersedia"));

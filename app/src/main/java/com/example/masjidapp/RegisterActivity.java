@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Inisialisasi Firebase
         mAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         // Inisialisasi elemen UI
         nameEditText = findViewById(R.id.nameEditText);
@@ -103,7 +103,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 String uid = firebaseUser.getUid();
 
                                 // Buat objek User
-                                User user = new User(uid, name, email, phone);
+                                User user = new User(name, email, phone);
 
                                 // Simpan ke Realtime Database
                                 databaseReference.child(uid).setValue(user)

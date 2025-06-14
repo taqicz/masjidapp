@@ -38,7 +38,7 @@ public class ProfileFragment extends Fragment {
         // Inisialisasi Firebase
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         // Inisialisasi UI
         editName = view.findViewById(R.id.editName);

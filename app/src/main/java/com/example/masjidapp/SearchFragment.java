@@ -43,6 +43,7 @@ public class SearchFragment extends Fragment {
     private MaterialToolbar toolbar;
     private Button btnBack, btnAdd;
 
+    public static final String EXTRA_MOSQUE_ID = "MOSQUE_ID";
     public static final String EXTRA_MOSQUE_NAME = "MOSQUE_NAME";
     public static final String EXTRA_MOSQUE_ADDRESS = "MOSQUE_ADDRESS";
     public static final String EXTRA_MOSQUE_RATING = "MOSQUE_RATING";
@@ -84,6 +85,7 @@ public class SearchFragment extends Fragment {
         mosqueList = new ArrayList<>();
         adapter = new MosqueAdapter(requireContext(), mosqueList, mosque -> {
             Intent intent = new Intent(getActivity(), profilMasjid.class);
+            intent.putExtra(EXTRA_MOSQUE_ID, mosque.getId());
             intent.putExtra(EXTRA_MOSQUE_NAME, mosque.getName());
             intent.putExtra(EXTRA_MOSQUE_ADDRESS, mosque.getAddress());
             intent.putExtra(EXTRA_MOSQUE_RATING, mosque.getRating());
@@ -173,7 +175,6 @@ public class SearchFragment extends Fragment {
         layout.addView(nameInput);
         layout.addView(addressInput);
         layout.addView(ratingInput);
-        layout.addView(distanceInput);
         layout.addView(imageUrlInput);
         layout.addView(uploadButton);
         layout.addView(imagePreview); // <-- Tambahkan ImageView ke layout
@@ -185,7 +186,6 @@ public class SearchFragment extends Fragment {
             nameInput.setText(editMosque.getName());
             addressInput.setText(editMosque.getAddress());
             ratingInput.setText(String.valueOf(editMosque.getRating()));
-            distanceInput.setText(editMosque.getDistance());
             imageUrlInput.setText(editMosque.getImageUrl());
             descriptionInput.setText(editMosque.getDescription());
             dateInput.setText(editMosque.getEstablishedDate());
@@ -204,7 +204,6 @@ public class SearchFragment extends Fragment {
             String name = nameInput.getText().toString().trim();
             String address = addressInput.getText().toString().trim();
             String ratingStr = ratingInput.getText().toString().trim();
-            String distance = distanceInput.getText().toString().trim();
             String description = descriptionInput.getText().toString().trim();
             String date = dateInput.getText().toString().trim();
             String chairman = chairmanInput.getText().toString().trim();
@@ -228,7 +227,8 @@ public class SearchFragment extends Fragment {
                 }
             }
 
-            MosqueModel newMosque = new MosqueModel(name, address, rating, distance, "", description, date, chairman);
+            // Buat objek masjid baru
+            MosqueModel newMosque = new MosqueModel(name, address, rating, "", description, date, chairman);
 
             final String key;
             if (editMosque != null) {
@@ -243,6 +243,10 @@ public class SearchFragment extends Fragment {
                 return;
             }
 
+            // ✅ SET ID KE DALAM OBJEK MOSQUE
+            newMosque.setId(key);
+
+            // Jika ada gambar dipilih, upload
             if (selectedImageUri != null) {
                 Toast.makeText(getContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
                 String uploadPreset = "masjidapp";
@@ -278,6 +282,7 @@ public class SearchFragment extends Fragment {
                 saveMosqueToFirebase(key, newMosque);
             }
         });
+
 
         builder.setNegativeButton("Batal", (dialog, which) -> {
             selectedImageUri = null;
