@@ -1,16 +1,17 @@
 package com.example.masjidapp;
-//import com.example.masjidapp.MosqueModel;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide; // <-- 1. PASTIKAN IMPORT INI ADA
 
 import java.util.List;
 
@@ -20,7 +21,6 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
     private List<MosqueModel> mosqueList;
     private OnItemClickListener onItemClickListener;
 
-    // Constructor
     public MosqueAdapter(Context context, List<MosqueModel> mosqueList, OnItemClickListener onItemClickListener) {
         this.context = context;
         this.mosqueList = mosqueList;
@@ -41,11 +41,15 @@ public class MosqueAdapter extends RecyclerView.Adapter<MosqueAdapter.MosqueView
         holder.mosqueName.setText(mosque.getName());
         holder.mosqueAddress.setText(mosque.getAddress());
         holder.mosqueRating.setRating(mosque.getRating());
-        holder.ratingText.setText(mosque.getRating() + " (120)");
+        holder.ratingText.setText(String.valueOf(mosque.getRating())); // Lebih aman pakai String.valueOf()
         holder.mosqueDistance.setText(mosque.getDistance());
 
+        // <-- 2. TAMBAHKAN LOGIKA UNTUK MEMUAT GAMBAR DI SINI
+        Glide.with(context)
+                .load(mosque.getImageUrl()) // Ambil URL gambar dari model
+                .placeholder(R.drawable.logo_app) // Tampilkan logo app saat gambar dimuat (opsional)
+                .into(holder.mosqueThumbnail); // Masukkan ke ImageView
 
-        // Click listener
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(mosque);

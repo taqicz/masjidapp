@@ -1,11 +1,12 @@
-// SearchFragment.java
 package com.example.masjidapp;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent; // Tambahkan import ini
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log; // Tambahkan untuk debugging jika perlu
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide; // <-- IMPORT GLIDE
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.database.*;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class SearchFragment extends Fragment {
 
@@ -26,15 +35,18 @@ public class SearchFragment extends Fragment {
     private MosqueAdapter adapter;
     private List<MosqueModel> mosqueList;
     private DatabaseReference databaseRef;
+    private Uri selectedImageUri;
+
+    // Deklarasikan ImageView di sini agar bisa diakses dari onActivityResult
+    private ImageView imagePreview;
 
     private MaterialToolbar toolbar;
     private Button btnBack, btnAdd;
 
-    // Definisikan konstanta untuk kunci Intent agar konsisten
     public static final String EXTRA_MOSQUE_NAME = "MOSQUE_NAME";
     public static final String EXTRA_MOSQUE_ADDRESS = "MOSQUE_ADDRESS";
     public static final String EXTRA_MOSQUE_RATING = "MOSQUE_RATING";
-    public static final String EXTRA_MOSQUE_DISTANCE = "MOSQUE_DISTANCE"; // Anda mungkin ingin menampilkan ini juga
+    public static final String EXTRA_MOSQUE_DISTANCE = "MOSQUE_DISTANCE";
     public static final String EXTRA_MOSQUE_IMAGE_URL = "MOSQUE_IMAGE_URL";
     public static final String EXTRA_MOSQUE_DESCRIPTION = "MOSQUE_DESCRIPTION";
     public static final String EXTRA_MOSQUE_ESTABLISHED_DATE = "MOSQUE_ESTABLISHED_DATE";
@@ -54,7 +66,7 @@ public class SearchFragment extends Fragment {
         databaseRef = FirebaseDatabase.getInstance().getReference("masjid");
 
         setupToolbar();
-        setupRecyclerView(); // Perubahan utama ada di sini
+        setupRecyclerView();
         setupAddButton();
         setupBackButton();
         fetchDataFromFirebase();
@@ -70,22 +82,16 @@ public class SearchFragment extends Fragment {
 
     private void setupRecyclerView() {
         mosqueList = new ArrayList<>();
-        // Modifikasi lambda di sini untuk menangani klik item
         adapter = new MosqueAdapter(requireContext(), mosqueList, mosque -> {
-            // Aksi ketika item diklik
             Intent intent = new Intent(getActivity(), profilMasjid.class);
-
-            // Masukkan data masjid ke Intent
-            // Gunakan konstanta yang sudah didefinisikan
             intent.putExtra(EXTRA_MOSQUE_NAME, mosque.getName());
             intent.putExtra(EXTRA_MOSQUE_ADDRESS, mosque.getAddress());
             intent.putExtra(EXTRA_MOSQUE_RATING, mosque.getRating());
-            intent.putExtra(EXTRA_MOSQUE_DISTANCE, mosque.getDistance()); // Jika ingin dikirim
+            intent.putExtra(EXTRA_MOSQUE_DISTANCE, mosque.getDistance());
             intent.putExtra(EXTRA_MOSQUE_IMAGE_URL, mosque.getImageUrl());
             intent.putExtra(EXTRA_MOSQUE_DESCRIPTION, mosque.getDescription());
             intent.putExtra(EXTRA_MOSQUE_ESTABLISHED_DATE, mosque.getEstablishedDate());
             intent.putExtra(EXTRA_MOSQUE_CHAIRMAN, mosque.getChairman());
-
             startActivity(intent);
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -110,10 +116,11 @@ public class SearchFragment extends Fragment {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     MosqueModel mosque = ds.getValue(MosqueModel.class);
                     if (mosque != null) {
+                        mosque.setId(ds.getKey());
                         mosqueList.add(mosque);
                     }
                 }
-                if (adapter != null) { // Pastikan adapter tidak null
+                if (adapter != null) {
                     adapter.notifyDataSetChanged();
                 }
             }
@@ -134,15 +141,32 @@ public class SearchFragment extends Fragment {
 
         LinearLayout layout = new LinearLayout(requireContext());
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 40); // Sedikit penyesuaian padding
+        layout.setPadding(50, 40, 50, 40);
 
         EditText nameInput = createEditText("Nama Masjid");
         EditText addressInput = createEditText("Alamat");
-        EditText ratingInput = createEditText("Rating (0.0 - 5.0)"); // Hint lebih jelas
+        EditText ratingInput = createEditText("Rating (0.0 - 5.0)");
         ratingInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        EditText distanceInput = createEditText("Jarak (misal: 1.5 km)"); // Hint lebih jelas
-        EditText imageUrlInput = createEditText("URL Gambar (opsional)");
-        EditText descriptionInput = createEditText("Deskripsi (opsional)");
+        EditText distanceInput = createEditText("Jarak (misal: 1.5 km)");
+        EditText imageUrlInput = createEditText("URL Gambar (otomatis diisi)");
+        imageUrlInput.setEnabled(false);
+        Button uploadButton = new Button(requireContext());
+        uploadButton.setText("Pilih Gambar");
+        uploadButton.setOnClickListener(v -> openImageChooser());
+
+        // --- PERUBAHAN 1: Buat ImageView untuk preview ---
+        imagePreview = new ImageView(requireContext());
+        LinearLayout.LayoutParams imageParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                300 // Tinggi preview 300px
+        );
+        imageParams.setMargins(0, 20, 0, 20);
+        imagePreview.setLayoutParams(imageParams);
+        imagePreview.setVisibility(View.GONE); // Sembunyikan di awal
+        imagePreview.setAdjustViewBounds(true);
+        // ---------------------------------------------
+
+        EditText descriptionInput = createEditText("Deskripsi");
         EditText dateInput = createEditText("Tanggal Berdiri (YYYY-MM-DD)");
         EditText chairmanInput = createEditText("Nama Ketua Takmir");
 
@@ -151,6 +175,8 @@ public class SearchFragment extends Fragment {
         layout.addView(ratingInput);
         layout.addView(distanceInput);
         layout.addView(imageUrlInput);
+        layout.addView(uploadButton);
+        layout.addView(imagePreview); // <-- Tambahkan ImageView ke layout
         layout.addView(descriptionInput);
         layout.addView(dateInput);
         layout.addView(chairmanInput);
@@ -164,6 +190,12 @@ public class SearchFragment extends Fragment {
             descriptionInput.setText(editMosque.getDescription());
             dateInput.setText(editMosque.getEstablishedDate());
             chairmanInput.setText(editMosque.getChairman());
+
+            // Tampilkan gambar yang sudah ada saat mode edit
+            if (editMosque.getImageUrl() != null && !editMosque.getImageUrl().isEmpty()) {
+                imagePreview.setVisibility(View.VISIBLE);
+                Glide.with(this).load(editMosque.getImageUrl()).into(imagePreview);
+            }
         }
 
         builder.setView(layout);
@@ -173,12 +205,10 @@ public class SearchFragment extends Fragment {
             String address = addressInput.getText().toString().trim();
             String ratingStr = ratingInput.getText().toString().trim();
             String distance = distanceInput.getText().toString().trim();
-            String imageUrl = imageUrlInput.getText().toString().trim();
             String description = descriptionInput.getText().toString().trim();
             String date = dateInput.getText().toString().trim();
             String chairman = chairmanInput.getText().toString().trim();
 
-            // Validasi dasar
             if (name.isEmpty() || address.isEmpty() || date.isEmpty() || chairman.isEmpty()) {
                 Toast.makeText(getContext(), "Nama, Alamat, Tanggal Berdiri, dan Ketua Takmir tidak boleh kosong!", Toast.LENGTH_LONG).show();
                 return;
@@ -198,27 +228,60 @@ public class SearchFragment extends Fragment {
                 }
             }
 
+            MosqueModel newMosque = new MosqueModel(name, address, rating, distance, "", description, date, chairman);
 
-            MosqueModel newMosque = new MosqueModel(name, address, rating, distance, imageUrl, description, date, chairman);
-            // Menggunakan nama masjid sebagai ID unik. Pertimbangkan menggunakan push().getKey() untuk ID unik jika nama bisa sama atau mengandung karakter tidak valid.
-            if (editMosque != null || (newMosque.getName() != null && !newMosque.getName().isEmpty())) {
-                String key = (editMosque != null) ? editMosque.getName() : newMosque.getName(); // Gunakan nama lama jika edit, atau nama baru.
-                // TODO: Pertimbangkan untuk tidak membiarkan nama (yang jadi key) diubah saat edit, atau handle perubahan key.
-                // Atau lebih baik, setiap masjid punya ID unik yang tidak berubah.
-                databaseRef.child(key).setValue(newMosque)
-                        .addOnSuccessListener(unused -> {
-                            if(getContext() != null) Toast.makeText(getContext(), "Data berhasil disimpan", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            if(getContext() != null) Toast.makeText(getContext(), "Gagal menyimpan data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            Log.e("FirebaseSave", "Gagal menyimpan data", e);
-                        });
+            final String key;
+            if (editMosque != null) {
+                key = editMosque.getId();
+                newMosque.setImageUrl(editMosque.getImageUrl());
             } else {
-                if(getContext() != null) Toast.makeText(getContext(), "Nama masjid tidak boleh kosong untuk dijadikan ID", Toast.LENGTH_LONG).show();
+                key = databaseRef.push().getKey();
+            }
+
+            if (key == null) {
+                Toast.makeText(getContext(), "Gagal membuat ID unik untuk data.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (selectedImageUri != null) {
+                Toast.makeText(getContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
+                String uploadPreset = "masjidapp";
+
+                MediaManager.get().upload(selectedImageUri)
+                        .unsigned(uploadPreset)
+                        .callback(new UploadCallback() {
+                            @Override
+                            public void onStart(String requestId) {}
+
+                            @Override
+                            public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                            @Override
+                            public void onSuccess(String requestId, Map resultData) {
+                                if (getContext() == null) return;
+                                String imageUrl = (String) resultData.get("secure_url");
+                                newMosque.setImageUrl(imageUrl);
+                                saveMosqueToFirebase(key, newMosque);
+                            }
+
+                            @Override
+                            public void onError(String requestId, ErrorInfo error) {
+                                if (getContext() != null) {
+                                    Toast.makeText(getContext(), "Upload gambar gagal: " + error.getDescription(), Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onReschedule(String requestId, ErrorInfo error) {}
+                        }).dispatch();
+            } else {
+                saveMosqueToFirebase(key, newMosque);
             }
         });
 
-        builder.setNegativeButton("Batal", null);
+        builder.setNegativeButton("Batal", (dialog, which) -> {
+            selectedImageUri = null;
+        });
         builder.show();
     }
 
@@ -229,8 +292,61 @@ public class SearchFragment extends Fragment {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        params.setMargins(0,0,0,16); // Tambahkan margin bawah
+        params.setMargins(0, 0, 0, 16);
         et.setLayoutParams(params);
         return et;
+    }
+
+    private void openImageChooser() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        startActivityForResult(intent, 1001);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            selectedImageUri = data.getData();
+
+            if (getContext() != null && selectedImageUri != null) {
+                try {
+                    final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
+                    getContext().getContentResolver().takePersistableUriPermission(selectedImageUri, takeFlags);
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
+
+                // --- PERUBAHAN 2: Tampilkan preview gambar yang dipilih ---
+                if (imagePreview != null) {
+                    imagePreview.setVisibility(View.VISIBLE);
+                    Glide.with(this) // Memakai konteks dari Fragment
+                            .load(selectedImageUri)
+                            .into(imagePreview);
+                }
+                // ----------------------------------------------------
+            }
+        }
+    }
+
+    private void saveMosqueToFirebase(String key, MosqueModel mosque) {
+        databaseRef.child(key).setValue(mosque)
+                .addOnSuccessListener(unused -> {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Data berhasil disimpan", Toast.LENGTH_SHORT).show();
+                    }
+                    selectedImageUri = null;
+                })
+                .addOnFailureListener(e -> {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(), "Gagal menyimpan data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    Log.e("FirebaseSave", "Gagal menyimpan data", e);
+                });
     }
 }

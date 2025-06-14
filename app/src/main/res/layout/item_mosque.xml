@@ -19,7 +19,7 @@
             android:layout_height="80dp"
             android:contentDescription="Mosque Image"
             android:scaleType="centerCrop"
-            android:src="@drawable/sample_masjid" />
+             />
 
         <LinearLayout
             android:layout_width="0dp"

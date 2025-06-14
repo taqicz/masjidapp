@@ -67,4 +67,6 @@ dependencies {
     //bumptech
     implementation ("com.loopj.android:android-async-http:1.4.9")
     implementation ("com.github.bumptech.glide:glide:4.12.0")
+
+    implementation ("com.cloudinary:cloudinary-android:2.4.0")
 }

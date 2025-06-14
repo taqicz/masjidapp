@@ -1,6 +1,7 @@
 package com.example.masjidapp;
 
 public class MosqueModel {
+    private String id;
     private String name;
     private String address;
     private float rating;
@@ -37,6 +38,14 @@ public class MosqueModel {
         this(name, address, rating, distance, imageUrl, "", "", ""); // Memanggil constructor lengkap
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     // Getter (sudah ada dan sudah benar)
     public String getName() {
         return name;
@@ -68,6 +77,10 @@ public class MosqueModel {
 
     public String getChairman() {
         return chairman;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     // CATATAN: Setter tidak wajib untuk deserialisasi dari Firebase,

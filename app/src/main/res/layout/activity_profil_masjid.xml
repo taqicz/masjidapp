@@ -14,18 +14,20 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="280dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="@color/primary"
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:expandedTitleGravity="center_horizontal|bottom"
             app:expandedTitleMarginBottom="16dp"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Display1"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Display1">
 
-            <!-- Gambar Masjid sebagai background -->
             <ImageView
                 android:id="@+id/imgMasjid"
                 android:layout_width="match_parent"
@@ -34,11 +36,11 @@
                 android:src="@drawable/sample_masjid"
                 app:layout_collapseMode="parallax" />
 
-            <!-- Gradient overlay untuk membuat teks lebih terbaca -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_gravity="bottom" />
+                android:layout_height="120dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/gradient_overlay" />
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -47,24 +49,19 @@
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-            <!-- Nama Masjid -->
             <TextView
                 android:id="@+id/tvNamaMasjid"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:gravity="center"
-                android:padding="16dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="24dp"
                 android:text="Masjid Al-Falah"
                 android:textColor="@android:color/white"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                android:shadowColor="@android:color/black"
-                android:shadowRadius="5"
-                android:shadowDx="1"
-                android:shadowDy="1" />
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Content menggunakan NestedScrollView -->
