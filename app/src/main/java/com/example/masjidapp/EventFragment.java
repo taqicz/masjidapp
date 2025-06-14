@@ -101,6 +101,8 @@ public class EventFragment extends Fragment {
         eventRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded()) return; // Mencegah crash saat fragment tidak attached
+
                 eventList.clear();
                 ArrayList<String> uniqueTypes = new ArrayList<>();
 
@@ -117,27 +119,29 @@ public class EventFragment extends Fragment {
                     }
                 }
 
-                populateFilterChips(uniqueTypes); // <- CHIP DINAMIS
+                populateFilterChips(uniqueTypes);
                 updateEventSummary();
                 filterEvents();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // error handling
+                // Handle error jika perlu
             }
         });
     }
 
     private void populateFilterChips(ArrayList<String> types) {
-        chipGroupFilter.setOnCheckedChangeListener(null); // sementara disable listener
+        if (!isAdded()) return; // Cegah crash: pastikan fragment attached ke context
+
+        chipGroupFilter.setOnCheckedChangeListener(null);
         chipGroupFilter.removeAllViews();
 
         // Chip "Semua"
         Chip allChip = new Chip(requireContext());
         allChip.setText("Semua");
         allChip.setCheckable(true);
-        allChip.setChecked(true); // default
+        allChip.setChecked(true);
         chipGroupFilter.addView(allChip);
 
         // Chip dari type unik
@@ -176,11 +180,14 @@ public class EventFragment extends Fragment {
     }
 
     private void updateEventSummary() {
-        tvEventSummary.setText("Total Event: " + filteredList.size());
+        if (tvEventSummary != null) {
+            tvEventSummary.setText("Total Event: " + filteredList.size());
+        }
     }
 
     private void openFragment(Fragment fragment) {
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        if (getActivity() == null) return;
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
