@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,6 +32,8 @@ public class FragmentHome extends Fragment {
     private RecyclerView recyclerBuku;
     private FloatingActionButton notificationFab;
     private TextView btnLihatLainnya;
+
+    private DatabaseReference eventsRef;
 
     public FragmentHome() {
         // Required empty public constructor
@@ -51,24 +54,20 @@ public class FragmentHome extends Fragment {
         CardView prayerTimeCard = view.findViewById(R.id.prayerTimeCard);
         CardView btnLihatMasjidLainnya = view.findViewById(R.id.btnLihatMasjidLainnya);
 
-        // Set click listener untuk tombol
         btnLihatMasjidLainnya.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ListMasjidActivity.class);
             startActivity(intent);
         });
 
-        // Event klik ke detail jadwal sholat
         prayerTimeCard.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), PrayerTimeDetailActivity.class);
             startActivity(intent);
         });
 
-        // FAB Notifikasi
         notificationFab.setOnClickListener(v -> {
             Toast.makeText(getActivity(), "Notifikasi", Toast.LENGTH_SHORT).show();
         });
 
-        // Setup RecyclerView untuk event, masjid, dan buku
         setupEventsRecyclerView();
         setupMosquesRecyclerView();
         setupBukuRecyclerView();
@@ -84,19 +83,43 @@ public class FragmentHome extends Fragment {
         EventAdapter adapter = new EventAdapter(getContext(), eventList);
         eventsRecyclerView.setAdapter(adapter);
 
-        DatabaseReference eventsRef = FirebaseDatabase.getInstance().getReference("events");
+        eventsRef = FirebaseDatabase.getInstance().getReference("events");
+
+        // Listener Update
+        adapter.setOnEventUpdateClickListener((event, position) -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("EVENT", event);
+            UpdateEventFragment updateFragment = new UpdateEventFragment();
+            updateFragment.setArguments(bundle);
+            openFragment(updateFragment);
+        });
+
+        // Listener Delete
+        adapter.setOnEventDeleteClickListener(position -> {
+            EventModel eventToDelete = eventList.get(position);
+            String eventId = eventToDelete.getId();
+            if (eventId != null) {
+                eventsRef.child(eventId).removeValue().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Event berhasil dihapus", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Gagal menghapus event", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
 
         eventsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                eventList.clear(); // Kosongkan list sebelum diisi ulang
+                eventList.clear();
                 for (DataSnapshot eventSnapshot : snapshot.getChildren()) {
                     EventModel event = eventSnapshot.getValue(EventModel.class);
                     if (event != null) {
                         eventList.add(event);
                     }
                 }
-                adapter.notifyDataSetChanged(); // Update RecyclerView setelah data dimuat
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -106,13 +129,20 @@ public class FragmentHome extends Fragment {
         });
     }
 
+    private void openFragment(Fragment fragment) {
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // Pastikan ID ini sesuai
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
+
     private void setupMosquesRecyclerView() {
         mosquesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         List<MosqueModel> mosqueList = new ArrayList<>();
-        mosqueList.add(new MosqueModel("Masjid Al-Hikmah", "Jl. Masjid No. 123, Jakarta", 4.5f,  "https://example.com/image1.jpg", "Masjid Al-Hikmah adalah pusat kajian Islam.", "1995", "Ust. Ahmad"));
-        mosqueList.add(new MosqueModel("Masjid Jami", "Jl. Raya No. 45, Jakarta", 4.2f,  "https://example.com/image2.jpg", "Masjid Jami terkenal dengan khutbah Jumatnya.", "1980", "Ust. Budi"));
-        mosqueList.add(new MosqueModel("Masjid An-Nur", "Jl. Utama No. 67, Jakarta", 4.7f,  "https://example.com/image3.jpg", "Masjid An-Nur menyediakan program buka puasa.", "2005", "Ust. Zaki"));
+        mosqueList.add(new MosqueModel("Masjid Al-Hikmah", "Jl. Masjid No. 123, Jakarta", 4.5f, "https://example.com/image1.jpg", "Masjid Al-Hikmah adalah pusat kajian Islam.", "1995", "Ust. Ahmad"));
+        mosqueList.add(new MosqueModel("Masjid Jami", "Jl. Raya No. 45, Jakarta", 4.2f, "https://example.com/image2.jpg", "Masjid Jami terkenal dengan khutbah Jumatnya.", "1980", "Ust. Budi"));
+        mosqueList.add(new MosqueModel("Masjid An-Nur", "Jl. Utama No. 67, Jakarta", 4.7f, "https://example.com/image3.jpg", "Masjid An-Nur menyediakan program buka puasa.", "2005", "Ust. Zaki"));
 
         MosqueAdapter adapter = new MosqueAdapter(getContext(), mosqueList, mosque -> {
             Intent intent = new Intent(getActivity(), profilMasjid.class);
@@ -140,7 +170,6 @@ public class FragmentHome extends Fragment {
         BukuAdapter bukuAdapter = new BukuAdapter(getContext(), listBuku);
         recyclerBuku.setAdapter(bukuAdapter);
 
-        // Lihat lainnya
         btnLihatLainnya.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ListBukuActivity.class);
             startActivity(intent);

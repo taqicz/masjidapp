@@ -18,6 +18,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
 
 public class AddEventFragment extends Fragment {
 
@@ -89,7 +93,6 @@ public class AddEventFragment extends Fragment {
     }
 
     private void saveEvent() {
-        String id = eventRef.push().getKey();
         String title = etTitle.getText().toString();
         String location = etLocation.getText().toString();
         String type = etType.getText().toString();
@@ -97,21 +100,50 @@ public class AddEventFragment extends Fragment {
         String date = etDate.getText().toString();
         String startTime = startHour;
         String endTime = endHour;
-        String imageUri = selectedImageUri != null ? selectedImageUri.toString() : "";
 
         if (title.isEmpty() || location.isEmpty() || type.isEmpty() || description.isEmpty() ||
-                date.isEmpty() || startTime.isEmpty() || endTime.isEmpty()) {
-            Toast.makeText(requireContext(), "Semua field harus diisi", Toast.LENGTH_SHORT).show();
+                date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || selectedImageUri == null) {
+            Toast.makeText(requireContext(), "Semua field harus diisi termasuk gambar", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        EventModel event = new EventModel(id, title, location, date, startTime, endTime, type, imageUri, description);
-        eventRef.child(id).setValue(event)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(requireContext(), "Event berhasil ditambahkan", Toast.LENGTH_SHORT).show();
-                    requireActivity().onBackPressed();
+        // Upload ke Cloudinary
+        Toast.makeText(requireContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
+        MediaManager.get().upload(selectedImageUri)
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {}
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String imageUrl = resultData.get("secure_url").toString();
+
+                        // Setelah sukses upload ke Cloudinary, simpan ke Firebase
+                        String id = eventRef.push().getKey();
+                        EventModel event = new EventModel(id, title, location, date, startTime, endTime, type, imageUrl, description);
+
+                        eventRef.child(id).setValue(event)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(requireContext(), "Event berhasil ditambahkan", Toast.LENGTH_SHORT).show();
+                                    requireActivity().onBackPressed();
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Gagal menambahkan event", Toast.LENGTH_SHORT).show());
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Toast.makeText(requireContext(), "Upload gagal: " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+                        Toast.makeText(requireContext(), "Upload dijadwalkan ulang", Toast.LENGTH_SHORT).show();
+                    }
                 })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Gagal menambahkan event", Toast.LENGTH_SHORT).show());
+                .dispatch();
     }
 
     private void showDatePicker() {

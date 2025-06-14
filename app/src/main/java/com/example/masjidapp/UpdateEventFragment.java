@@ -20,6 +20,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +30,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class UpdateEventFragment extends Fragment {
 
@@ -42,6 +47,8 @@ public class UpdateEventFragment extends Fragment {
     private EventModel eventToEdit;
     private DatabaseReference eventRef;
     private static final String TAG = "UpdateEventFragment";
+
+    private boolean isCloudinaryInitialized = false;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -126,6 +133,17 @@ public class UpdateEventFragment extends Fragment {
         return view;
     }
 
+    private void initCloudinary() {
+        if (isCloudinaryInitialized) return;
+
+        Map<String, String> config = new HashMap<>();
+        config.put("cloud_name", "YOUR_CLOUD_NAME"); // GANTI
+        config.put("api_key", "YOUR_API_KEY");       // GANTI
+        config.put("api_secret", "YOUR_API_SECRET"); // GANTI
+        MediaManager.init(requireContext(), config);
+        isCloudinaryInitialized = true;
+    }
+
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -151,14 +169,43 @@ public class UpdateEventFragment extends Fragment {
         eventToEdit.setType(type);
         eventToEdit.setDescription(description);
         eventToEdit.setDate(date);
-
         if (!startHour.isEmpty()) eventToEdit.setStartTime(startHour);
         if (!endHour.isEmpty()) eventToEdit.setEndTime(endHour);
 
         if (selectedImageUri != null && (currentImageUriString == null || !selectedImageUri.toString().equals(currentImageUriString))) {
-            eventToEdit.setImageUri(selectedImageUri.toString());
-        }
+            initCloudinary();
 
+            MediaManager.get().upload(selectedImageUri)
+                    .callback(new UploadCallback() {
+                        @Override
+                        public void onStart(String requestId) {
+                            Toast.makeText(requireContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onProgress(String requestId, long bytes, long totalBytes) {}
+
+                        @Override
+                        public void onSuccess(String requestId, Map resultData) {
+                            String imageUrl = resultData.get("secure_url").toString();
+                            eventToEdit.setImageUri(imageUrl);
+                            saveEventToFirebase();
+                        }
+
+                        @Override
+                        public void onError(String requestId, ErrorInfo error) {
+                            Toast.makeText(requireContext(), "Gagal upload gambar: " + error.getDescription(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onReschedule(String requestId, ErrorInfo error) {}
+                    }).dispatch();
+        } else {
+            saveEventToFirebase();
+        }
+    }
+
+    private void saveEventToFirebase() {
         eventRef.child(eventToEdit.getId()).setValue(eventToEdit)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(requireContext(), "Event berhasil diperbarui", Toast.LENGTH_SHORT).show();
