@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.masjidapp.BukuModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -121,7 +120,6 @@ public class FragmentHome extends Fragment {
     private void setupMosquesRecyclerView() {
         mosquesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         List<MosqueModel> mosqueList = new ArrayList<>();
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("masjid");
 
         MosqueAdapter adapter = new MosqueAdapter(getContext(), mosqueList, mosque -> {
             Intent intent = new Intent(getActivity(), profilMasjid.class);
@@ -138,6 +136,7 @@ public class FragmentHome extends Fragment {
 
         mosquesRecyclerView.setAdapter(adapter);
 
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("masjid");
         databaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -164,16 +163,29 @@ public class FragmentHome extends Fragment {
         });
     }
 
-
     private void setupBukuRecyclerView() {
         recyclerBuku.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         ArrayList<BukuModel> listBuku = new ArrayList<>();
-        listBuku.add(new BukuModel(1, R.drawable.buku1, "Tafsir Al-Misbah oleh Quraish Shihab", "2005"));
-        listBuku.add(new BukuModel(2, R.drawable.buku2, "Fiqh Wanita - Syaikh Shalih Al-Fauzan", "2010"));
-        listBuku.add(new BukuModel(3, R.drawable.buku3, "Sirah Nabawiyah - Ibnu Hisyam", "1998"));
-
         BukuAdapter bukuAdapter = new BukuAdapter(getContext(), listBuku);
         recyclerBuku.setAdapter(bukuAdapter);
+
+        DatabaseReference bukuRef = FirebaseDatabase.getInstance().getReference("buku");
+        bukuRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                listBuku.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    BukuModel buku = data.getValue(BukuModel.class);
+                    listBuku.add(buku);
+                }
+                bukuAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Gagal memuat data buku", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
