@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class BukuAdapter extends RecyclerView.Adapter<BukuAdapter.BukuViewHolder> {
@@ -42,7 +44,7 @@ public class BukuAdapter extends RecyclerView.Adapter<BukuAdapter.BukuViewHolder
     @Override
     public void onBindViewHolder(@NonNull BukuViewHolder holder, int position) {
         BukuModel buku = listBuku.get(position);
-        holder.imgBuku.setImageResource(buku.getGambar());
+        Glide.with(context).load(buku.getGambarUrl()).into(holder.imgBuku);
         holder.txtDeskripsi.setText(buku.getDeskripsi());
         holder.txtTahun.setText(buku.getTahun());
 

@@ -110,9 +110,9 @@ public class FragmentHome extends Fragment {
         mosquesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         List<MosqueModel> mosqueList = new ArrayList<>();
-        mosqueList.add(new MosqueModel("Masjid Al-Hikmah", "Jl. Masjid No. 123, Jakarta", 4.5f,  "https://example.com/image1.jpg", "Masjid Al-Hikmah adalah pusat kajian Islam.", "1995", "Ust. Ahmad"));
-        mosqueList.add(new MosqueModel("Masjid Jami", "Jl. Raya No. 45, Jakarta", 4.2f,  "https://example.com/image2.jpg", "Masjid Jami terkenal dengan khutbah Jumatnya.", "1980", "Ust. Budi"));
-        mosqueList.add(new MosqueModel("Masjid An-Nur", "Jl. Utama No. 67, Jakarta", 4.7f,  "https://example.com/image3.jpg", "Masjid An-Nur menyediakan program buka puasa.", "2005", "Ust. Zaki"));
+        mosqueList.add(new MosqueModel("Masjid Al-Hikmah", "Jl. Masjid No. 123, Jakarta", 4.5f, "https://example.com/image1.jpg", "Masjid Al-Hikmah adalah pusat kajian Islam.", "1995", "Ust. Ahmad"));
+        mosqueList.add(new MosqueModel("Masjid Jami", "Jl. Raya No. 45, Jakarta", 4.2f, "https://example.com/image2.jpg", "Masjid Jami terkenal dengan khutbah Jumatnya.", "1980", "Ust. Budi"));
+        mosqueList.add(new MosqueModel("Masjid An-Nur", "Jl. Utama No. 67, Jakarta", 4.7f, "https://example.com/image3.jpg", "Masjid An-Nur menyediakan program buka puasa.", "2005", "Ust. Zaki"));
 
         MosqueAdapter adapter = new MosqueAdapter(getContext(), mosqueList, mosque -> {
             Intent intent = new Intent(getActivity(), profilMasjid.class);
@@ -133,12 +133,26 @@ public class FragmentHome extends Fragment {
         recyclerBuku.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         ArrayList<BukuModel> listBuku = new ArrayList<>();
-        listBuku.add(new BukuModel(1, R.drawable.buku1, "Tafsir Al-Misbah oleh Quraish Shihab", "2005"));
-        listBuku.add(new BukuModel(2, R.drawable.buku2, "Fiqh Wanita - Syaikh Shalih Al-Fauzan", "2010"));
-        listBuku.add(new BukuModel(3, R.drawable.buku3, "Sirah Nabawiyah - Ibnu Hisyam", "1998"));
-
         BukuAdapter bukuAdapter = new BukuAdapter(getContext(), listBuku);
         recyclerBuku.setAdapter(bukuAdapter);
+
+        DatabaseReference bukuRef = FirebaseDatabase.getInstance().getReference("buku");
+        bukuRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                listBuku.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    BukuModel buku = data.getValue(BukuModel.class);
+                    listBuku.add(buku);
+                }
+                bukuAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Gagal memuat data buku", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Lihat lainnya
         btnLihatLainnya.setOnClickListener(v -> {
@@ -147,3 +161,4 @@ public class FragmentHome extends Fragment {
         });
     }
 }
+

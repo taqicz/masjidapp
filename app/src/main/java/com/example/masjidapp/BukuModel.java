@@ -1,24 +1,26 @@
 package com.example.masjidapp;
 
 public class BukuModel {
-    private int id;
-    private int gambar;
+    private String id;
+    private String gambarUrl;
     private String deskripsi;
     private String tahun;
 
-    public BukuModel(int id, int gambar, String deskripsi, String tahun) {
+    public BukuModel() {}
+
+    public BukuModel(String id, String gambarUrl, String deskripsi, String tahun) {
         this.id = id;
-        this.gambar = gambar;
+        this.gambarUrl = gambarUrl;
         this.deskripsi = deskripsi;
         this.tahun = tahun;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public int getGambar() {
-        return gambar;
+    public String getGambarUrl() {
+        return gambarUrl;
     }
 
     public String getDeskripsi() {
@@ -31,5 +33,9 @@ public class BukuModel {
 
     public void setDeskripsi(String deskripsi) {
         this.deskripsi = deskripsi;
+    }
+
+    public void setGambarUrl(String gambarUrl) {
+        this.gambarUrl = gambarUrl;
     }
 }

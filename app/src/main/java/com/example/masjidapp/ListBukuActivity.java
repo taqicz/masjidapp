@@ -1,8 +1,9 @@
 package com.example.masjidapp;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -12,9 +13,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.masjidapp.network.CloudinaryApi;
+import com.example.masjidapp.network.CloudinaryResponse;
+import com.example.masjidapp.network.RetrofitClient;
+import com.example.masjidapp.utils.PathUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.*;
 
 import java.util.ArrayList;
+
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ListBukuActivity extends AppCompatActivity {
 
@@ -22,6 +34,8 @@ public class ListBukuActivity extends AppCompatActivity {
     private BukuAdapter bukuAdapter;
     private ArrayList<BukuModel> listBuku;
     private FloatingActionButton fabTambahBuku;
+    private Uri selectedImageUri;
+    private DatabaseReference bukuRef;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -31,44 +45,101 @@ public class ListBukuActivity extends AppCompatActivity {
         recyclerBuku = findViewById(R.id.recyclerBukuFull);
         fabTambahBuku = findViewById(R.id.fabTambahBuku);
 
-        listBuku = SharedBukuData.getBukuList();
-
+        listBuku = new ArrayList<>();
         bukuAdapter = new BukuAdapter(this, listBuku);
         recyclerBuku.setLayoutManager(new LinearLayoutManager(this));
         recyclerBuku.setAdapter(bukuAdapter);
 
-        fabTambahBuku.setOnClickListener(v -> showTambahBukuDialog());
+        bukuRef = FirebaseDatabase.getInstance().getReference("buku");
 
-        bukuAdapter.setOnItemLongClickListener(buku -> showPilihanEditHapusDialog(buku));
+        fabTambahBuku.setOnClickListener(v -> openImagePicker());
+        bukuAdapter.setOnItemLongClickListener(this::showPilihanEditHapusDialog);
+
+        loadBuku();
+    }
+
+    private void loadBuku() {
+        bukuRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                listBuku.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    BukuModel buku = data.getValue(BukuModel.class);
+                    listBuku.add(buku);
+                }
+                bukuAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {}
+        });
+    }
+
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        startActivityForResult(intent, 100);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
+            selectedImageUri = data.getData();
+            showTambahBukuDialog();
+        }
     }
 
     private void showTambahBukuDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Tambah Buku Baru");
-
         View view = getLayoutInflater().inflate(R.layout.dialog_tambah_buku, null);
         EditText etDeskripsi = view.findViewById(R.id.etDeskripsi);
         EditText etTahun = view.findViewById(R.id.etTahun);
 
-        builder.setView(view);
-        builder.setPositiveButton("Tambah", (dialog, which) -> {
-            String deskripsi = etDeskripsi.getText().toString();
-            String tahun = etTahun.getText().toString();
+        new AlertDialog.Builder(this)
+                .setTitle("Tambah Buku Baru")
+                .setView(view)
+                .setPositiveButton("Tambah", (dialog, which) -> {
+                    String deskripsi = etDeskripsi.getText().toString();
+                    String tahun = etTahun.getText().toString();
+                    if (!deskripsi.isEmpty() && !tahun.isEmpty() && selectedImageUri != null) {
+                        uploadToCloudinaryThenSave(deskripsi, tahun, selectedImageUri);
+                    } else {
+                        Toast.makeText(this, "Lengkapi semua data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Batal", null)
+                .show();
+    }
 
-            if (!deskripsi.isEmpty() && !tahun.isEmpty()) {
-                int idBaru = SharedBukuData.generateNewId();
-                int gambarDefault = R.drawable.buku1;
+    private void uploadToCloudinaryThenSave(String deskripsi, String tahun, Uri imageUri) {
+        RequestBody requestFile = PathUtil.getRequestBodyFromUri(this, imageUri);
+        if (requestFile == null) {
+            Toast.makeText(this, "Gagal membaca gambar", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                BukuModel bukuBaru = new BukuModel(idBaru, gambarDefault, deskripsi, tahun);
-                SharedBukuData.addBuku(bukuBaru);
-                bukuAdapter.notifyItemInserted(listBuku.size() - 1);
-            } else {
-                Toast.makeText(this, "Deskripsi dan tahun wajib diisi", Toast.LENGTH_SHORT).show();
+        MultipartBody.Part body = MultipartBody.Part.createFormData("file", "image.jpg", requestFile);
+        RequestBody preset = RequestBody.create(okhttp3.MultipartBody.FORM, "masjidapp");
+
+        CloudinaryApi api = RetrofitClient.getInstance().create(CloudinaryApi.class);
+        api.uploadImage(preset, body).enqueue(new Callback<CloudinaryResponse>() {
+            @Override
+            public void onResponse(Call<CloudinaryResponse> call, Response<CloudinaryResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String imageUrl = response.body().getSecureUrl();
+                    String id = bukuRef.push().getKey();
+                    BukuModel buku = new BukuModel(id, imageUrl, deskripsi, tahun);
+                    bukuRef.child(id).setValue(buku);
+                } else {
+                    Toast.makeText(ListBukuActivity.this, "Upload gagal", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CloudinaryResponse> call, Throwable t) {
+                Toast.makeText(ListBukuActivity.this, "Gagal koneksi Cloudinary", Toast.LENGTH_SHORT).show();
             }
         });
-
-        builder.setNegativeButton("Batal", null);
-        builder.show();
     }
 
     private void showPilihanEditHapusDialog(BukuModel buku) {
@@ -80,33 +151,24 @@ public class ListBukuActivity extends AppCompatActivity {
                     if (which == 0) {
                         showEditDeskripsiDialog(buku);
                     } else if (which == 1) {
-                        SharedBukuData.deleteBuku(buku.getId());
-                        bukuAdapter.notifyDataSetChanged();
-                        Toast.makeText(this, "Buku dihapus", Toast.LENGTH_SHORT).show();
+                        bukuRef.child(buku.getId()).removeValue();
                     }
                 })
                 .show();
     }
 
     private void showEditDeskripsiDialog(BukuModel buku) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Edit Deskripsi");
-
         EditText input = new EditText(this);
         input.setText(buku.getDeskripsi());
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
 
-        builder.setPositiveButton("Simpan", (dialog, which) -> {
-            String deskripsiBaru = input.getText().toString();
-            if (!deskripsiBaru.isEmpty()) {
-                SharedBukuData.updateBuku(buku.getId(), deskripsiBaru);
-                bukuAdapter.notifyDataSetChanged();
-                Toast.makeText(this, "Deskripsi diperbarui", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        builder.setNegativeButton("Batal", null);
-        builder.show();
+        new AlertDialog.Builder(this)
+                .setTitle("Edit Deskripsi")
+                .setView(input)
+                .setPositiveButton("Simpan", (dialog, which) -> {
+                    String newDesc = input.getText().toString();
+                    bukuRef.child(buku.getId()).child("deskripsi").setValue(newDesc);
+                })
+                .setNegativeButton("Batal", null)
+                .show();
     }
 }
