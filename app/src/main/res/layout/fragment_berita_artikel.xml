@@ -18,7 +18,7 @@
             android:id="@+id/isiJudul"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="36dp"
             android:hint="Masukkan Judul"
             android:layout_marginBottom="16dp"/>
 
@@ -36,6 +36,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Masukkan kategori" />
+
+        <ImageView
+            android:id="@+id/imagePreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            android:background="#E0E0E0"
+            android:visibility="gone"
+            tools:src="@tools:sample/backgrounds/scenic"
+            tools:visibility="visible"
+            android:contentDescription="Preview Gambar Artikel" />
+
+        <Button
+            android:id="@+id/btnPilihGambar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pilih Gambar Sampul"
+            android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btnKirim"

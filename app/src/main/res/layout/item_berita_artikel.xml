@@ -52,6 +52,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/imageArtikel"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Gambar Sampul Artikel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTimePosted" />
+
         <!-- Judul -->
         <TextView
             android:id="@+id/titleArtikel"
@@ -98,36 +109,36 @@
             app:layout_constraintTop_toBottomOf="@id/tvReadMore">
 
             <!-- Like Button -->
-            <ImageButton
-                android:id="@+id/btnLike"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Like"
-                android:src="@drawable/ic_love_default" />
+<!--            <ImageButton-->
+<!--                android:id="@+id/btnLike"-->
+<!--                android:layout_width="36dp"-->
+<!--                android:layout_height="36dp"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                android:contentDescription="Like"-->
+<!--                android:src="@drawable/ic_love_default" />-->
 
             <!-- Comment Button -->
-            <ImageButton
-                android:id="@+id/btnComment"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Comment"
-                android:src="@drawable/ic_comment" />
+<!--            <ImageButton-->
+<!--                android:id="@+id/btnComment"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="24dp"-->
+<!--                android:layout_marginStart="24dp"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                android:contentDescription="Comment"-->
+<!--                android:src="@drawable/ic_comment" />-->
 
             <!-- Share Button -->
-            <ImageButton
-                android:id="@+id/btnShare"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Share"
-                android:src="@drawable/ic_share" />
+<!--            <ImageButton-->
+<!--                android:id="@+id/btnShare"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="24dp"-->
+<!--                android:layout_marginStart="24dp"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                android:contentDescription="Share"-->
+<!--                android:src="@drawable/ic_share" />-->
 
             <View
                 android:layout_width="0dp"
@@ -139,16 +150,18 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginRight="10dp"
+                app:tint="@color/black"
                 android:src="@drawable/ic_delete">
             </ImageView>
+
             <!-- Bookmark Button -->
-            <ImageButton
-                android:id="@+id/btnBookmark"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Bookmark"
-                android:src="@drawable/ic_bookmark" />
+<!--            <ImageButton-->
+<!--                android:id="@+id/btnBookmark"-->
+<!--                android:layout_width="24dp"-->
+<!--                android:layout_height="24dp"-->
+<!--                android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                android:contentDescription="Bookmark"-->
+<!--                android:src="@drawable/ic_bookmark" />-->
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

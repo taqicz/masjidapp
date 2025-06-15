@@ -1,6 +1,7 @@
 package com.example.masjidapp;
 
 public class User {
+    public String uid;
     private String name;
     private String email;
     private String phone;
@@ -9,7 +10,8 @@ public class User {
         // Diperlukan oleh Firebase
     }
 
-    public User(String name, String email, String phone) {
+    public User(String uid, String name, String email, String phone) {
+        this.uid = uid;
         this.name = name;
         this.email = email;
         this.phone = phone;
