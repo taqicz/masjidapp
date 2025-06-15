@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -43,6 +44,13 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.play.services.maps)
     implementation(libs.fragment)
+    implementation(libs.firebase.auth)
+    implementation(libs.credentials)
+    implementation(libs.credentials.play.services.auth)
+    implementation(libs.googleid)
+    implementation(libs.firebase.database)
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+
 
     // Testing Libraries
     testImplementation(libs.junit)
@@ -55,4 +63,12 @@ dependencies {
     // Glide Image Loading Library
     implementation("com.github.bumptech.glide:glide:4.13.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
+
+    //bumptech
+    implementation ("com.loopj.android:android-async-http:1.4.9")
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+
+    implementation ("com.cloudinary:cloudinary-android:2.4.0")
+
+    implementation ("org.ocpsoft.prettytime:prettytime:5.0.7.Final")
 }

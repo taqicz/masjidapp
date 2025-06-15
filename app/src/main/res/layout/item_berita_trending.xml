@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="265dp">
+    android:layout_height="265dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -53,7 +54,8 @@
             android:text="Baca selengkapnya"
             android:textColor="@color/white"
             android:background="@drawable/berita_button_baca"
-            android:layout_below="@id/titleTrending">
+            android:layout_below="@id/titleTrending"
+            app:backgroundTint="@null">
         </Button>
     </RelativeLayout>
 

@@ -1,28 +1,42 @@
 package com.example.masjidapp;
 
+import com.google.firebase.database.Exclude;
+
 public class BeritaArtikelModel {
+    private String id; // 1. Tambahkan ID untuk menampung key dari Firebase
     private String title;
     private String content;
     private String kategori;
-    private String imageUrl; // Tambahkan properti untuk gambar
+    private String imageUrl;
+    private String authorUid;
+    private String authorName;
+    private long timestamp;
 
-    // Constructor yang diperbarui untuk menyertakan gambar
-    public BeritaArtikelModel(String title, String content, String kategori, String imageUrl) {
+    // 2. Constructor kosong WAJIB ADA untuk Firebase
+    public BeritaArtikelModel() {
+    }
+
+    // Constructor untuk memudahkan membuat objek baru di kode Anda
+    public BeritaArtikelModel(String title, String content, String kategori, String imageUrl, String authorUid, String authorName) {
         this.title = title;
         this.content = content;
         this.kategori = kategori;
         this.imageUrl = imageUrl;
+        this.authorUid = authorUid;
+        this.authorName = authorName;
     }
 
-    // Tambahkan constructor tanpa parameter gambar untuk kompatibilitas
-    public BeritaArtikelModel(String title, String content, String kategori) {
-        this.title = title;
-        this.content = content;
-        this.kategori = kategori;
-        this.imageUrl = ""; // Default value
+    // Getter dan Setter
+
+    @Exclude // Anotasi ini agar Firebase tidak mencoba menyimpan ID ini dua kali
+    public String getId() {
+        return id;
     }
 
-    // Getter dan Setter yang sudah ada
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -47,12 +61,32 @@ public class BeritaArtikelModel {
         this.kategori = kategori;
     }
 
-    // Getter dan Setter untuk imageUrl
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getAuthorUid() {
+        return authorUid;
+    }
+    public void setAuthorUid(String authorUid) {
+        this.authorUid = authorUid;
+    }
+    public String getAuthorName() {
+        return authorName;
+    }
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }
