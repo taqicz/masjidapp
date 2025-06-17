@@ -1,3 +1,12 @@
+/**
+ * EventAdapter adalah adapter RecyclerView yang digunakan untuk menampilkan daftar event dalam bentuk list/card.
+ *
+ * Fitur:
+ * - Menampilkan data event: gambar, judul, lokasi, tanggal, jam, jenis, deskripsi.
+ * - Navigasi ke EventDetailActivity saat item diklik.
+ * - Mendukung aksi update dan delete melalui tombol di setiap item.
+ */
+
 package com.example.masjidapp;
 
 import android.content.Context;
@@ -21,14 +30,18 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     private Context context;
     private List<EventModel> eventList;
+
+    // Listener untuk aksi update dan delete
     private OnEventUpdateClickListener updateClickListener;
     private OnEventDeleteClickListener deleteClickListener;
 
+    // Konstruktor adapter
     public EventAdapter(Context context, List<EventModel> eventList) {
         this.context = context;
         this.eventList = eventList;
     }
 
+    // Membuat tampilan item
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -36,97 +49,99 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return new EventViewHolder(view);
     }
 
+    // Mengikat data ke tampilan item
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         EventModel event = eventList.get(position);
 
-        // Bind data to the views
+        // Isi data ke elemen-elemen tampilan
         holder.eventTitle.setText(event.getTitle());
         holder.eventLocation.setText(event.getLocation());
         holder.eventDate.setText(event.getDate());
         holder.eventType.setText(event.getType());
+
         String combinedTime = event.getStartTime() + " - " + event.getEndTime() + " WIB";
         holder.eventStartTime.setText(combinedTime);
         holder.eventDescription.setText(event.getDescription());
 
-        // Load event image with Glide
+        // Menampilkan gambar menggunakan Glide
         if (event.getImageUri() != null && !event.getImageUri().isEmpty()) {
             Glide.with(context)
                     .load(Uri.parse(event.getImageUri()))
                     .into(holder.eventImage);
         } else {
-            holder.eventImage.setImageResource(R.drawable.default_event_image); // default image if no image URL
+            holder.eventImage.setImageResource(R.drawable.default_event_image); // Gambar default jika tidak ada URL
         }
 
-        // Handle click to navigate to EventDetailActivity
+        // Saat item diklik, buka EventDetailActivity
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailActivity.class);
-            intent.putExtra("EVENT_DETAIL", event);
-            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //
+            intent.putExtra("EVENT_DETAIL", event); // Kirim objek event
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             context.startActivity(intent);
         });
 
-
-        // Handle update button click
+        // Aksi saat tombol update ditekan
         holder.btnUpdate.setOnClickListener(v -> {
             if (updateClickListener != null) {
-                updateClickListener.onEventUpdateClick(event, position);  // Trigger event update
+                updateClickListener.onEventUpdateClick(event, position); // Panggil listener update
             }
         });
 
-        // Handle delete button click
+        // Aksi saat tombol delete ditekan
         holder.btnDelete.setOnClickListener(v -> {
             if (deleteClickListener != null) {
-                deleteClickListener.onEventDeleteClick(position);  // Trigger event delete
+                deleteClickListener.onEventDeleteClick(position); // Panggil listener delete
             }
         });
     }
 
+    // Mengembalikan jumlah item dalam list
     @Override
     public int getItemCount() {
         return eventList.size();
     }
 
-    // Method to update event list
+    // Mengganti seluruh list event dan perbarui tampilan
     public void setEvents(List<EventModel> newEvents) {
         this.eventList = newEvents;
-        notifyDataSetChanged(); // Notify adapter that data has changed
+        notifyDataSetChanged(); // Beri tahu adapter bahwa datanya berubah
     }
 
-    // Method to add a new event to the list
+    // Menambahkan satu event ke list
     public void addEvent(EventModel event) {
         eventList.add(event);
         notifyItemInserted(eventList.size() - 1);
     }
 
-    // Method to remove an event from the list
+    // Menghapus satu event dari list berdasarkan posisi
     public void removeEvent(int position) {
         eventList.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, eventList.size());
     }
 
-    // Set the listener for event updates
+    // Set listener untuk update
     public void setOnEventUpdateClickListener(OnEventUpdateClickListener listener) {
         this.updateClickListener = listener;
     }
 
-    // Set the listener for event deletes
+    // Set listener untuk delete
     public void setOnEventDeleteClickListener(OnEventDeleteClickListener listener) {
         this.deleteClickListener = listener;
     }
 
-    // Interface for update event click
+    // Interface callback untuk aksi update
     public interface OnEventUpdateClickListener {
         void onEventUpdateClick(EventModel event, int position);
     }
 
-    // Interface for delete event click
+    // Interface callback untuk aksi delete
     public interface OnEventDeleteClickListener {
         void onEventDeleteClick(int position);
     }
 
-    // ViewHolder class for individual items
+    // ViewHolder untuk item event
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         ImageView eventImage;
         TextView eventTitle, eventLocation, eventDate, eventType, eventStartTime, eventDescription;

@@ -1,3 +1,14 @@
+/**
+ * Kelas EventFragment digunakan untuk menampilkan daftar event dalam bentuk RecyclerView.
+ *
+ * Fitur yang didukung:
+ * - Menampilkan semua event dari Firebase.
+ * - Pencarian event berdasarkan judul (fitur search).
+ * - Filter event berdasarkan jenis event menggunakan ChipGroup.
+ * - Tombol untuk menambah event baru (membuka AddEventFragment).
+ * - Fungsi update dan hapus event melalui adapter.
+ */
+
 package com.example.masjidapp;
 
 import android.os.Bundle;
@@ -30,8 +41,8 @@ import java.util.ArrayList;
 public class EventFragment extends Fragment {
 
     private RecyclerView eventsRecyclerView;
-    private ArrayList<EventModel> eventList = new ArrayList<>();
-    private ArrayList<EventModel> filteredList = new ArrayList<>();
+    private ArrayList<EventModel> eventList = new ArrayList<>(); // Data asli dari Firebase
+    private ArrayList<EventModel> filteredList = new ArrayList<>(); // Data setelah difilter
     private EventAdapter eventAdapter;
     private DatabaseReference eventRef;
     private TextInputEditText etSearch;
@@ -49,35 +60,43 @@ public class EventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Inisialisasi view
         eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
         etSearch = view.findViewById(R.id.et_search_event);
         chipGroupFilter = view.findViewById(R.id.chipGroupFilter);
         tvEventSummary = view.findViewById(R.id.tv_event_summary);
 
+        // Setup tampilan RecyclerView
         setupEventsRecyclerView();
 
+        // Referensi database
         eventRef = FirebaseDatabase.getInstance().getReference("events");
         loadEventsFromFirebase();
 
+        // Tombol tambah event
         FloatingActionButton fabAddEvent = view.findViewById(R.id.fab_add_event);
         fabAddEvent.setOnClickListener(v -> openFragment(new AddEventFragment()));
 
+        // Event saat mengetik di search
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterEvents();
+                filterEvents(); // Filter saat keyword berubah
             }
         });
 
+        // Event saat chip filter dipilih
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> filterEvents());
     }
 
+    // Setup adapter dan listener untuk RecyclerView
     private void setupEventsRecyclerView() {
         eventsRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 1));
         eventAdapter = new EventAdapter(getContext(), filteredList);
 
+        // Listener untuk update event
         eventAdapter.setOnEventUpdateClickListener((event, position) -> {
             Bundle bundle = new Bundle();
             bundle.putSerializable("EVENT", event);
@@ -86,6 +105,7 @@ public class EventFragment extends Fragment {
             openFragment(updateFragment);
         });
 
+        // Listener untuk hapus event
         eventAdapter.setOnEventDeleteClickListener(position -> {
             EventModel eventToDelete = filteredList.get(position);
             String eventId = eventToDelete.getId();
@@ -97,14 +117,15 @@ public class EventFragment extends Fragment {
         eventsRecyclerView.setAdapter(eventAdapter);
     }
 
+    // Ambil data event dari Firebase dan tampilkan ke dalam list
     private void loadEventsFromFirebase() {
         eventRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!isAdded()) return; // Mencegah crash saat fragment tidak attached
+                if (!isAdded()) return; // Mencegah crash jika fragment belum terpasang
 
                 eventList.clear();
-                ArrayList<String> uniqueTypes = new ArrayList<>();
+                ArrayList<String> uniqueTypes = new ArrayList<>(); // Untuk membuat chip filter jenis
 
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     EventModel event = dataSnapshot.getValue(EventModel.class);
@@ -112,6 +133,7 @@ public class EventFragment extends Fragment {
                         event.setId(dataSnapshot.getKey());
                         eventList.add(event);
 
+                        // Ambil jenis event untuk chip filter
                         String type = event.getType();
                         if (type != null && !uniqueTypes.contains(type)) {
                             uniqueTypes.add(type);
@@ -121,7 +143,7 @@ public class EventFragment extends Fragment {
 
                 populateFilterChips(uniqueTypes);
                 updateEventSummary();
-                filterEvents();
+                filterEvents(); // Terapkan filter terbaru setelah data dimuat
             }
 
             @Override
@@ -131,20 +153,21 @@ public class EventFragment extends Fragment {
         });
     }
 
+    // Membuat chip filter berdasarkan jenis event
     private void populateFilterChips(ArrayList<String> types) {
-        if (!isAdded()) return; // Cegah crash: pastikan fragment attached ke context
+        if (!isAdded()) return;
 
-        chipGroupFilter.setOnCheckedChangeListener(null);
+        chipGroupFilter.setOnCheckedChangeListener(null); // Hapus listener sementara
         chipGroupFilter.removeAllViews();
 
-        // Chip "Semua"
+        // Chip default "Semua"
         Chip allChip = new Chip(requireContext());
         allChip.setText("Semua");
         allChip.setCheckable(true);
         allChip.setChecked(true);
         chipGroupFilter.addView(allChip);
 
-        // Chip dari type unik
+        // Chip untuk tiap jenis event unik
         for (String type : types) {
             Chip chip = new Chip(requireContext());
             chip.setText(type);
@@ -155,10 +178,12 @@ public class EventFragment extends Fragment {
         chipGroupFilter.setOnCheckedChangeListener((group, checkedId) -> filterEvents());
     }
 
+    // Filter event berdasarkan keyword pencarian dan jenis chip yang dipilih
     private void filterEvents() {
         String keyword = etSearch.getText() != null ? etSearch.getText().toString().toLowerCase() : "";
         String selectedType = "Semua";
 
+        // Ambil chip yang dipilih
         Chip checkedChip = chipGroupFilter.findViewById(chipGroupFilter.getCheckedChipId());
         if (checkedChip != null) {
             selectedType = checkedChip.getText().toString();
@@ -179,12 +204,14 @@ public class EventFragment extends Fragment {
         eventAdapter.notifyDataSetChanged();
     }
 
+    // Menampilkan jumlah total event yang ditampilkan
     private void updateEventSummary() {
         if (tvEventSummary != null) {
             tvEventSummary.setText("Total Event: " + filteredList.size());
         }
     }
 
+    // Fungsi untuk berpindah ke fragment lain (tambah atau edit event)
     private void openFragment(Fragment fragment) {
         if (getActivity() == null) return;
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();

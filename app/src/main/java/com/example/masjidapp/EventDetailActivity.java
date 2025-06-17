@@ -1,3 +1,12 @@
+/**
+ * Kelas EventDetailActivity digunakan untuk menampilkan detail lengkap dari sebuah event.
+ *
+ * Fitur yang disediakan:
+ * - Menampilkan data event (judul, lokasi, tanggal, jam, tipe, deskripsi, dan gambar).
+ * - Menampilkan gambar dari URL Cloudinary menggunakan Glide.
+ * - Fitur untuk mengambil screenshot dari tampilan detail dan menyimpannya ke penyimpanan lokal.
+ */
+
 package com.example.masjidapp;
 
 import android.content.Intent;
@@ -26,19 +35,22 @@ import java.util.Date;
 
 public class EventDetailActivity extends AppCompatActivity {
 
+    // Komponen UI untuk detail event
     private ImageView eventDetailImage;
     private TextView eventDetailTitle, eventDetailLocation, eventDetailDate,
             eventDetailTime, eventDetailType, eventDetailDescription;
-    private ExtendedFloatingActionButton btnDownloadEvent; // ✅ Revisi
+    private ExtendedFloatingActionButton btnDownloadEvent;
 
+    // Bitmap hasil screenshot yang akan disimpan
     private Bitmap bitmapToSave;
 
+    // Launcher untuk membuka dialog simpan file (ACTION_CREATE_DOCUMENT)
     private final ActivityResultLauncher<Intent> createFileLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Uri uri = result.getData().getData();
                     if (uri != null && bitmapToSave != null) {
-                        saveBitmapToUri(uri);
+                        saveBitmapToUri(uri); // Simpan bitmap ke URI yang dipilih
                     }
                 }
             });
@@ -48,7 +60,7 @@ public class EventDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
 
-        // Inisialisasi View
+        // Inisialisasi semua komponen tampilan
         eventDetailImage = findViewById(R.id.eventDetailImage);
         eventDetailTitle = findViewById(R.id.eventDetailTitle);
         eventDetailLocation = findViewById(R.id.eventDetailLocation);
@@ -56,23 +68,24 @@ public class EventDetailActivity extends AppCompatActivity {
         eventDetailTime = findViewById(R.id.eventDetailTime);
         eventDetailType = findViewById(R.id.eventDetailType);
         eventDetailDescription = findViewById(R.id.eventDetailDescription);
-        btnDownloadEvent = findViewById(R.id.btnDownloadEvent); // ✅ Tidak perlu casting ke ImageButton
+        btnDownloadEvent = findViewById(R.id.btnDownloadEvent);
 
-        // Ambil data dari Intent
+        // Ambil data event yang dikirim dari intent
         Intent intent = getIntent();
         EventModel event = (EventModel) intent.getSerializableExtra("EVENT_DETAIL");
 
         if (event != null) {
+            // Tampilkan data event ke tampilan
             eventDetailTitle.setText(event.getTitle());
             eventDetailLocation.setText(event.getLocation());
-            eventDetailDate.setText( event.getDate());
+            eventDetailDate.setText(event.getDate());
 
             String time = event.getStartTime() + " - " + event.getEndTime() + " WIB";
             eventDetailTime.setText(time);
             eventDetailType.setText(event.getType());
             eventDetailDescription.setText(event.getDescription());
 
-            // Tampilkan gambar dari URL (Cloudinary)
+            // Tampilkan gambar event dari URL menggunakan Glide
             if (event.getImageUri() != null && !event.getImageUri().isEmpty()) {
                 Uri imageUri = Uri.parse(event.getImageUri());
                 Log.d("EVENT_DEBUG", "Image URI: " + event.getImageUri());
@@ -90,34 +103,43 @@ public class EventDetailActivity extends AppCompatActivity {
             }
         }
 
-        // Ambil screenshot dan minta lokasi simpan
+        // Ambil root view dari layar untuk screenshot
         View rootView = getWindow().getDecorView().getRootView();
         btnDownloadEvent.setOnClickListener(v -> {
-            bitmapToSave = takeScreenshot(rootView);
+            bitmapToSave = takeScreenshot(rootView); // Ambil screenshot layar
             if (bitmapToSave != null) {
-                launchCreateFileIntent();
+                launchCreateFileIntent(); // Tampilkan intent simpan file
             } else {
                 Toast.makeText(this, "Gagal mengambil screenshot", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    /**
+     * Mengambil screenshot dari suatu view dan mengubahnya menjadi Bitmap.
+     */
     private Bitmap takeScreenshot(View view) {
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        view.draw(canvas);
+        view.draw(canvas); // Gambar seluruh tampilan ke canvas
         return bitmap;
     }
 
+    /**
+     * Meluncurkan intent untuk membuat file PNG untuk menyimpan screenshot.
+     */
     private void launchCreateFileIntent() {
         String fileName = "event_" + new Date().getTime() + ".png";
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/png");
-        intent.putExtra(Intent.EXTRA_TITLE, fileName);
+        intent.putExtra(Intent.EXTRA_TITLE, fileName); // Nama default file
         createFileLauncher.launch(intent);
     }
 
+    /**
+     * Menyimpan bitmap ke lokasi file yang dipilih oleh pengguna.
+     */
     private void saveBitmapToUri(Uri uri) {
         try (OutputStream out = getContentResolver().openOutputStream(uri)) {
             bitmapToSave.compress(Bitmap.CompressFormat.PNG, 100, out);

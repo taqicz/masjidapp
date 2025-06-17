@@ -1,3 +1,13 @@
+/**
+ * Kelas AddEventFragment digunakan untuk menambahkan event ke aplikasi MasjidApp.
+ *
+ * Fitur yang didukung:
+ * - Input informasi event (judul, lokasi, jenis, deskripsi, tanggal, waktu, dan gambar).
+ * - Pemilihan gambar dari galeri dan upload ke Cloudinary.
+ * - Penyimpanan data event beserta URL gambar ke Firebase Realtime Database.
+ * - Menggunakan DatePickerDialog dan TimePickerDialog untuk input tanggal dan waktu.
+ */
+
 package com.example.masjidapp;
 
 import android.app.DatePickerDialog;
@@ -33,23 +43,31 @@ import java.util.Map;
 
 public class AddEventFragment extends Fragment {
 
+    // Deklarasi komponen UI
     private TextInputEditText etTitle, etLocation, etType, etDescription, etDate, etTime;
     private ImageView ivImage;
     private MaterialButton btnSave, btnUploadImage;
+
+    // Uri untuk gambar yang dipilih
     private Uri selectedImageUri;
+
+    // Menyimpan jam mulai dan selesai
     private String startHour = "", endHour = "";
 
+    // Referensi ke Firebase Realtime Database
     private DatabaseReference eventRef;
 
+    // Launcher untuk mengambil gambar dari galeri
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
                     selectedImageUri = result.getData().getData();
 
-                    // Simpan izin akses persisten
+                    // Simpan izin akses persistable untuk gambar
                     final int takeFlags = result.getData().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     requireContext().getContentResolver().takePersistableUriPermission(selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
+                    // Tampilkan gambar di ImageView
                     Glide.with(requireContext())
                             .load(selectedImageUri)
                             .placeholder(R.drawable.ic_launcher_background)
@@ -64,6 +82,7 @@ public class AddEventFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_event, container, false);
 
+        // Inisialisasi komponen UI
         etTitle = view.findViewById(R.id.etEventTitle);
         etLocation = view.findViewById(R.id.etEventLocation);
         etType = view.findViewById(R.id.etEventType);
@@ -74,8 +93,10 @@ public class AddEventFragment extends Fragment {
         btnSave = view.findViewById(R.id.btnSaveEvent);
         btnUploadImage = view.findViewById(R.id.btnUploadImage);
 
+        // Ambil referensi database
         eventRef = FirebaseDatabase.getInstance().getReference("events");
 
+        // Pasang listener untuk berbagai aksi
         ivImage.setOnClickListener(v -> pickImage());
         btnUploadImage.setOnClickListener(v -> pickImage());
         etDate.setOnClickListener(v -> showDatePicker());
@@ -85,6 +106,7 @@ public class AddEventFragment extends Fragment {
         return view;
     }
 
+    // Fungsi untuk membuka galeri dan memilih gambar
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -92,7 +114,9 @@ public class AddEventFragment extends Fragment {
         imagePickerLauncher.launch(intent);
     }
 
+    // Fungsi untuk menyimpan event ke Firebase setelah gambar diunggah ke Cloudinary
     private void saveEvent() {
+        // Ambil input dari user
         String title = etTitle.getText().toString();
         String location = etLocation.getText().toString();
         String type = etType.getText().toString();
@@ -101,13 +125,14 @@ public class AddEventFragment extends Fragment {
         String startTime = startHour;
         String endTime = endHour;
 
+        // Validasi input
         if (title.isEmpty() || location.isEmpty() || type.isEmpty() || description.isEmpty() ||
                 date.isEmpty() || startTime.isEmpty() || endTime.isEmpty() || selectedImageUri == null) {
             Toast.makeText(requireContext(), "Semua field harus diisi termasuk gambar", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Upload ke Cloudinary
+        // Upload gambar ke Cloudinary
         Toast.makeText(requireContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
         MediaManager.get().upload(selectedImageUri)
                 .callback(new UploadCallback() {
@@ -117,11 +142,11 @@ public class AddEventFragment extends Fragment {
                     @Override
                     public void onProgress(String requestId, long bytes, long totalBytes) {}
 
+                    // Setelah berhasil upload gambar, simpan data event ke Firebase
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
                         String imageUrl = resultData.get("secure_url").toString();
 
-                        // Setelah sukses upload ke Cloudinary, simpan ke Firebase
                         String id = eventRef.push().getKey();
                         EventModel event = new EventModel(id, title, location, date, startTime, endTime, type, imageUrl, description);
 
@@ -133,11 +158,13 @@ public class AddEventFragment extends Fragment {
                                 .addOnFailureListener(e -> Toast.makeText(requireContext(), "Gagal menambahkan event", Toast.LENGTH_SHORT).show());
                     }
 
+                    // Tangani error saat upload
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
                         Toast.makeText(requireContext(), "Upload gagal: " + error.getDescription(), Toast.LENGTH_SHORT).show();
                     }
 
+                    // Jika upload dijadwalkan ulang oleh Cloudinary
                     @Override
                     public void onReschedule(String requestId, ErrorInfo error) {
                         Toast.makeText(requireContext(), "Upload dijadwalkan ulang", Toast.LENGTH_SHORT).show();
@@ -146,6 +173,7 @@ public class AddEventFragment extends Fragment {
                 .dispatch();
     }
 
+    // Menampilkan DatePickerDialog untuk memilih tanggal event
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
@@ -156,11 +184,13 @@ public class AddEventFragment extends Fragment {
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
+    // Menampilkan TimePickerDialog untuk memilih jam mulai dan jam selesai
     private void showTimePickerStart() {
         Calendar calendar = Calendar.getInstance();
         new TimePickerDialog(requireContext(), (view, hour, minute) -> {
             startHour = String.format("%02d:%02d", hour, minute);
 
+            // Setelah memilih jam mulai, tampilkan dialog untuk memilih jam selesai
             new TimePickerDialog(requireContext(), (view2, endHourOfDay, endMinute) -> {
                 endHour = String.format("%02d:%02d", endHourOfDay, endMinute);
                 String fullTime = startHour + " - " + endHour + " WIB";

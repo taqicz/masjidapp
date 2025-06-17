@@ -1,4 +1,13 @@
-// UpdateEventFragment.java
+/**
+ * UpdateEventFragment digunakan untuk mengedit data event yang sudah ada.
+ *
+ * Fitur yang disediakan:
+ * - Menampilkan data event lama untuk diedit.
+ * - Memperbarui data event ke Firebase.
+ * - Mengunggah gambar baru ke Cloudinary jika gambar diubah.
+ * - Menggunakan DatePicker dan TimePicker untuk memilih tanggal dan waktu.
+ */
+
 package com.example.masjidapp;
 
 import android.app.DatePickerDialog;
@@ -36,28 +45,36 @@ import java.util.Map;
 
 public class UpdateEventFragment extends Fragment {
 
+    // Komponen UI
     private TextInputEditText etTitle, etLocation, etType, etDescription, etDate, etTime;
     private ImageView ivImage;
     private MaterialButton btnSave, btnUploadImage;
+
+    // URI gambar baru dan gambar lama
     private Uri selectedImageUri;
     private String currentImageUriString;
 
+    // Jam mulai dan selesai (baru)
     private String startHour = "", endHour = "";
 
-    private EventModel eventToEdit;
-    private DatabaseReference eventRef;
+    private EventModel eventToEdit; // Data event yang akan diedit
+    private DatabaseReference eventRef; // Referensi ke Firebase
     private static final String TAG = "UpdateEventFragment";
 
+    // Launcher untuk memilih gambar dari galeri
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                     selectedImageUri = result.getData().getData();
                     try {
-                        requireActivity().getContentResolver().takePersistableUriPermission(selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        // Berikan izin untuk URI yang dipilih
+                        requireActivity().getContentResolver().takePersistableUriPermission(
+                                selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     } catch (SecurityException e) {
                         Log.e(TAG, "Gagal mengambil izin URI: " + e.getMessage());
                     }
 
+                    // Tampilkan gambar baru yang dipilih
                     Glide.with(requireContext())
                             .load(selectedImageUri)
                             .placeholder(R.drawable.ic_launcher_background)
@@ -71,6 +88,7 @@ public class UpdateEventFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_event, container, false);
 
+        // Inisialisasi UI
         etTitle = view.findViewById(R.id.etEventTitle);
         etLocation = view.findViewById(R.id.etEventLocation);
         etType = view.findViewById(R.id.etEventType);
@@ -83,10 +101,12 @@ public class UpdateEventFragment extends Fragment {
 
         eventRef = FirebaseDatabase.getInstance().getReference("events");
 
+        // Ambil data event dari argument fragment
         if (getArguments() != null) {
             eventToEdit = (EventModel) getArguments().getSerializable("EVENT");
 
             if (eventToEdit != null) {
+                // Tampilkan data lama ke input field
                 etTitle.setText(eventToEdit.getTitle());
                 etLocation.setText(eventToEdit.getLocation());
                 etType.setText(eventToEdit.getType());
@@ -114,6 +134,7 @@ public class UpdateEventFragment extends Fragment {
             }
         }
 
+        // Event listener
         ivImage.setOnClickListener(v -> pickImage());
         btnUploadImage.setOnClickListener(v -> pickImage());
         etDate.setOnClickListener(v -> showDatePicker());
@@ -123,6 +144,7 @@ public class UpdateEventFragment extends Fragment {
         return view;
     }
 
+    // Fungsi untuk membuka galeri dan memilih gambar
     private void pickImage() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -131,18 +153,23 @@ public class UpdateEventFragment extends Fragment {
         imagePickerLauncher.launch(intent);
     }
 
+    // Fungsi untuk memperbarui data event
     private void updateEvent() {
+        // Ambil input
         String title = etTitle.getText().toString().trim();
         String location = etLocation.getText().toString().trim();
         String type = etType.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
         String date = etDate.getText().toString().trim();
 
-        if (title.isEmpty() || location.isEmpty() || type.isEmpty() || description.isEmpty() || date.isEmpty() || (startHour.isEmpty() && eventToEdit.getStartTime() == null)) {
+        // Validasi input
+        if (title.isEmpty() || location.isEmpty() || type.isEmpty() || description.isEmpty() || date.isEmpty()
+                || (startHour.isEmpty() && eventToEdit.getStartTime() == null)) {
             Toast.makeText(requireContext(), "Semua field harus diisi, termasuk waktu.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Set nilai baru ke objek event
         eventToEdit.setTitle(title);
         eventToEdit.setLocation(location);
         eventToEdit.setType(type);
@@ -151,7 +178,7 @@ public class UpdateEventFragment extends Fragment {
         if (!startHour.isEmpty()) eventToEdit.setStartTime(startHour);
         if (!endHour.isEmpty()) eventToEdit.setEndTime(endHour);
 
-        // Upload image jika berbeda dari sebelumnya
+        // Upload gambar jika diubah
         if (selectedImageUri != null && (currentImageUriString == null || !selectedImageUri.toString().equals(currentImageUriString))) {
             MediaManager.get().upload(selectedImageUri)
                     .callback(new UploadCallback() {
@@ -165,9 +192,10 @@ public class UpdateEventFragment extends Fragment {
 
                         @Override
                         public void onSuccess(String requestId, Map resultData) {
+                            // Simpan URL gambar baru ke event
                             String imageUrl = resultData.get("secure_url").toString();
                             eventToEdit.setImageUri(imageUrl);
-                            saveEventToFirebase();
+                            saveEventToFirebase(); // Simpan ke Firebase
                         }
 
                         @Override
@@ -179,20 +207,24 @@ public class UpdateEventFragment extends Fragment {
                         public void onReschedule(String requestId, ErrorInfo error) {}
                     }).dispatch();
         } else {
-            // Gambar tidak diubah
+            // Jika gambar tidak berubah
             saveEventToFirebase();
         }
     }
 
+    // Menyimpan event yang telah diedit ke Firebase
     private void saveEventToFirebase() {
         eventRef.child(eventToEdit.getId()).setValue(eventToEdit)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(requireContext(), "Event berhasil diperbarui", Toast.LENGTH_SHORT).show();
-                    requireActivity().onBackPressed();
+                    requireActivity().onBackPressed(); // Kembali ke halaman sebelumnya
                 })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Gagal memperbarui event: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Gagal memperbarui event: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
     }
 
+    // Menampilkan dialog untuk memilih tanggal
     private void showDatePicker() {
         Calendar calendar = Calendar.getInstance();
         new DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
@@ -203,11 +235,13 @@ public class UpdateEventFragment extends Fragment {
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
+    // Menampilkan dua TimePicker untuk memilih jam mulai dan jam selesai
     private void showTimePickerStart() {
         Calendar calendar = Calendar.getInstance();
         int initialHour = calendar.get(Calendar.HOUR_OF_DAY);
         int initialMinute = calendar.get(Calendar.MINUTE);
 
+        // Ambil waktu awal dari data jika tersedia
         if (eventToEdit != null && eventToEdit.getStartTime() != null) {
             try {
                 String[] parts = eventToEdit.getStartTime().split(":");
@@ -218,12 +252,11 @@ public class UpdateEventFragment extends Fragment {
 
         new TimePickerDialog(requireContext(), (view, hourOfDay, minute) -> {
             startHour = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-            int endHourDefault = hourOfDay, endMinuteDefault = minute;
 
             new TimePickerDialog(requireContext(), (view2, endHourVal, endMinuteVal) -> {
                 endHour = String.format(Locale.getDefault(), "%02d:%02d", endHourVal, endMinuteVal);
                 etTime.setText(startHour + " - " + endHour + " WIB");
-            }, endHourDefault, endMinuteDefault, true).show();
+            }, hourOfDay, minute, true).show();
 
         }, initialHour, initialMinute, true).show();
     }
