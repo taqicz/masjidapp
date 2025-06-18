@@ -47,6 +47,7 @@ public class BeritaFragment extends Fragment {
         trendingList = new ArrayList<>();
         artikelList = new ArrayList<>();
         databaseRefArtikel = FirebaseDatabase.getInstance().getReference("artikel");
+
         trendingList.add(new BeritaTrendingModel("Politik", "Kebijakan Baru Pemerintah"));
         trendingList.add(new BeritaTrendingModel("Ekonomi", "Inflasi Menurun di Kuartal Pertama"));
     }
@@ -88,7 +89,9 @@ public class BeritaFragment extends Fragment {
                         artikelList.add(artikel);
                     }
                 }
-                artikelAdapter.notifyDataSetChanged();
+                if (artikelAdapter != null) {
+                    artikelAdapter.notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -117,43 +120,45 @@ public class BeritaFragment extends Fragment {
         });
 
         artikelAdapter.setOnDeleteClickListener(position -> {
-            String artikelId = artikelList.get(position).getId();
-            databaseRefArtikel.child(artikelId).removeValue();
+            if (position >= 0 && position < artikelList.size()) {
+                String artikelId = artikelList.get(position).getId();
+                if (artikelId != null && !artikelId.isEmpty()) {
+                    databaseRefArtikel.child(artikelId).removeValue();
+                }
+            }
         });
 
         artikelAdapter.setOnItemLongClickListener(position -> {
-            BeritaArtikelModel artikelToEdit = artikelList.get(position);
-            bukaFormArtikel(artikelToEdit, position);
+            if (position >= 0 && position < artikelList.size()) {
+                BeritaArtikelModel artikelToEdit = artikelList.get(position);
+                bukaFormArtikel(artikelToEdit, position);
+            }
         });
     }
 
     private void bukaFormArtikel(@Nullable BeritaArtikelModel artikel, int position) {
-        fragment_berita_artikel formFragment = new fragment_berita_artikel();
+        fragment_berita_artikel formFragment;
+
         if (artikel != null && position != -1) {
-            formFragment.setArtikelToEdit(artikel, position);
+            formFragment = fragment_berita_artikel.newInstanceForEdit(artikel, position);
+        } else {
+            formFragment = new fragment_berita_artikel();
         }
 
         formFragment.setOnArtikelSubmitListener((judul, isi, kategori, imageUrl, isUpdate, updatePosition) -> {
-            // 1. Validasi: Langsung hentikan jika user belum login.
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser == null) {
                 Toast.makeText(getContext(), "Silakan login untuk membuat atau mengubah artikel", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // 2. Ambil informasi user yang sedang login.
             String authorUid = currentUser.getUid();
             String authorName = currentUser.getDisplayName();
 
-            // Beri nama default jika display name user ternyata kosong.
             if (authorName == null || authorName.isEmpty()) {
                 authorName = "Anggota";
             }
 
-            // 3. Buat objek artikel baru dengan informasi lengkap.
-            BeritaArtikelModel artikelBaru = new BeritaArtikelModel(judul, isi, kategori, imageUrl, authorUid, authorName);
-
-            // 4. Cek apakah ini mode update atau tambah baru.
             Map<String, Object> artikelValues = new HashMap<>();
             artikelValues.put("title", judul);
             artikelValues.put("content", isi);
@@ -162,28 +167,26 @@ public class BeritaFragment extends Fragment {
             artikelValues.put("authorUid", authorUid);
             artikelValues.put("authorName", authorName);
 
-            // Sisipkan timestamp hanya jika ini artikel baru
             if (!isUpdate) {
                 artikelValues.put("timestamp", ServerValue.TIMESTAMP);
             }
 
-            if (isUpdate && updatePosition >= 0) {
+            if (isUpdate && updatePosition >= 0 && updatePosition < artikelList.size()) {
                 String artikelIdToUpdate = artikelList.get(updatePosition).getId();
                 if (artikelIdToUpdate != null) {
-                    // Saat update, kita tidak mengubah timestamp asli, jadi kita hanya update valuenya
                     databaseRefArtikel.child(artikelIdToUpdate).updateChildren(artikelValues);
                     Toast.makeText(getContext(), "Artikel berhasil diperbarui!", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                // Simpan data baru ke Firebase
                 databaseRefArtikel.push().setValue(artikelValues);
                 Toast.makeText(getContext(), "Artikel berhasil disimpan!", Toast.LENGTH_SHORT).show();
             }
         });
 
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, formFragment);
-        transaction.addToBackStack(null);
-        transaction.commit();
+        getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, formFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

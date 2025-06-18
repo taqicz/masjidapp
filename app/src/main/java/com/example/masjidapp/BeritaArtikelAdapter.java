@@ -59,16 +59,14 @@ public class BeritaArtikelAdapter extends RecyclerView.Adapter<BeritaArtikelAdap
         holder.contentText.setText(artikelItem.getContent());
         holder.tvCategory.setText(artikelItem.getKategori());
 
-        // 4. Hapus deklarasi variabel lokal dan gunakan holder.tvUsername secara langsung
         if (holder.tvUsername != null) {
             if (artikelItem.getAuthorName() != null && !artikelItem.getAuthorName().isEmpty()) {
                 holder.tvUsername.setText(artikelItem.getAuthorName());
             } else {
-                holder.tvUsername.setText("Anonim"); // Fallback jika nama kosong
+                holder.tvUsername.setText("Anonim");
             }
         }
 
-        // Memuat gambar sampul menggunakan Glide
         if (holder.imageArtikel != null && context != null) {
             Glide.with(context)
                     .load(artikelItem.getImageUrl())
@@ -79,9 +77,7 @@ public class BeritaArtikelAdapter extends RecyclerView.Adapter<BeritaArtikelAdap
         if (holder.tvTimePosted != null) {
             long timeInMillis = artikelItem.getTimestamp();
 
-            // Pastikan timestamp tidak 0 (untuk data lama yang mungkin belum punya timestamp)
             if (timeInMillis > 0) {
-                // Buat objek PrettyTime dengan setting Bahasa Indonesia
                 PrettyTime p = new PrettyTime(new Locale("in","ID"));
                 String timeAgo = p.format(new Date(timeInMillis));
 
@@ -91,7 +87,6 @@ public class BeritaArtikelAdapter extends RecyclerView.Adapter<BeritaArtikelAdap
             }
         }
 
-        // Klik tombol delete
         if (holder.btnDelete != null) {
             holder.btnDelete.setOnClickListener(v -> {
                 if (deleteClickListener != null) {
@@ -100,14 +95,12 @@ public class BeritaArtikelAdapter extends RecyclerView.Adapter<BeritaArtikelAdap
             });
         }
 
-        // Klik biasa (buka detail)
         holder.itemView.setOnClickListener(v -> {
             if (itemClickListener != null) {
                 itemClickListener.onItemClick(artikelItem);
             }
         });
 
-        // Klik lama (edit)
         holder.itemView.setOnLongClickListener(v -> {
             if (longClickListener != null) {
                 longClickListener.onLongClick(position);
@@ -127,7 +120,6 @@ public class BeritaArtikelAdapter extends RecyclerView.Adapter<BeritaArtikelAdap
         notifyItemChanged(position);
     }
 
-    // ViewHolder
     public static class BeritaArtikelViewHolder extends RecyclerView.ViewHolder {
         TextView titleText, contentText, tvCategory, tvUsername; // 1. Tambahkan TextView untuk Username
         ImageView btnDelete;
@@ -140,13 +132,12 @@ public class BeritaArtikelAdapter extends RecyclerView.Adapter<BeritaArtikelAdap
             contentText = itemView.findViewById(R.id.contentArtikel);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             btnDelete = itemView.findViewById(R.id.btnDelete);
-            imageArtikel = itemView.findViewById(R.id.imageArtikel); // 2. Jangan di-comment baris ini
-            tvUsername = itemView.findViewById(R.id.tvUsername); // 3. Inisialisasi tvUsername di sini
+            imageArtikel = itemView.findViewById(R.id.imageArtikel);
+            tvUsername = itemView.findViewById(R.id.tvUsername);
             tvTimePosted = itemView.findViewById(R.id.tvTimePosted);
         }
     }
 
-    // --- Interface-interface ---
     public interface OnDeleteClickListener {
         void onDelete(int position);
     }

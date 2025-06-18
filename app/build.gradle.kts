@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
-    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -45,9 +45,11 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.fragment)
     implementation(libs.firebase.auth)
-    implementation(libs.credentials)
-    implementation(libs.credentials.play.services.auth)
-    implementation(libs.googleid)
+
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.database)
+    implementation(libs.google.gms.auth)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database)
     implementation("com.google.firebase:firebase-storage:20.3.0")
 

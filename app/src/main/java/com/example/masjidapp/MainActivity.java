@@ -24,18 +24,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(""); // Kosong karena kita pakai TextView di dalam Toolbar
+        getSupportActionBar().setTitle("");
 
-        // Init views
         bottomNavigationView = findViewById(R.id.bottomNavigation);
 
-        // Default Fragment (Home)
         loadFragment(new FragmentHome());
 
-        // Bottom Navigation logic
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             Fragment selectedFragment = null;

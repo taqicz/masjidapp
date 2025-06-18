@@ -1,18 +1,21 @@
 package com.example.masjidapp;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
@@ -23,39 +26,62 @@ import java.util.Map;
 
 public class fragment_berita_artikel extends Fragment {
 
-    // Interface untuk komunikasi antar fragment
     public interface OnArtikelSubmitListener {
-        // Tambahkan parameter String imageUrl
-        void onArtikelSubmitted(String judul, String isi, String kategori, String imageUrl, boolean isUpdate, int updatePosition);
+        void onArtikelSubmit(String judul, String isi, String kategori, String imageUrl, boolean isUpdate, int updatePosition);
     }
 
     private OnArtikelSubmitListener listener;
+
     private EditText edtJudul, edtIsi, edtKategori;
     private Button btnKirim, btnPilihGambar;
     private ImageView imagePreview;
+    private ProgressBar progressBar;
 
     private Uri selectedImageUri;
-    private String existingImageUrl = ""; // Untuk menyimpan URL gambar saat mode edit
+    private String existingImageUrl;
     private boolean isUpdate = false;
     private int updatePosition = -1;
 
+    private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    selectedImageUri = uri;
+                    if (getContext() != null) {
+                        Glide.with(this).load(selectedImageUri).into(imagePreview);
+                        imagePreview.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+    );
+
     public fragment_berita_artikel() {}
+
+    public static fragment_berita_artikel newInstanceForEdit(BeritaArtikelModel artikel, int position) {
+        fragment_berita_artikel fragment = new fragment_berita_artikel();
+        Bundle args = new Bundle();
+        args.putBoolean("isUpdate", true);
+        args.putInt("updatePosition", position);
+        args.putString("judul", artikel.getTitle());
+        args.putString("isi", artikel.getContent());
+        args.putString("kategori", artikel.getKategori());
+        args.putString("imageUrl", artikel.getImageUrl());
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     public void setOnArtikelSubmitListener(OnArtikelSubmitListener listener) {
         this.listener = listener;
     }
 
-    public void setArtikelToEdit(BeritaArtikelModel artikel, int position) {
-        isUpdate = true;
-        updatePosition = position;
-        existingImageUrl = artikel.getImageUrl(); // Simpan URL gambar yang sudah ada
-
-        Bundle args = new Bundle();
-        args.putString("judul", artikel.getTitle());
-        args.putString("isi", artikel.getContent());
-        args.putString("kategori", artikel.getKategori());
-        args.putString("imageUrl", artikel.getImageUrl());
-        this.setArguments(args);
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            isUpdate = getArguments().getBoolean("isUpdate", false);
+            updatePosition = getArguments().getInt("updatePosition", -1);
+            existingImageUrl = getArguments().getString("imageUrl", "");
+        }
     }
 
     @Override
@@ -69,48 +95,20 @@ public class fragment_berita_artikel extends Fragment {
         btnPilihGambar = view.findViewById(R.id.btnPilihGambar);
         imagePreview = view.findViewById(R.id.imagePreview);
 
-        if (getArguments() != null) {
+        if (isUpdate && getArguments() != null) {
             edtJudul.setText(getArguments().getString("judul", ""));
             edtIsi.setText(getArguments().getString("isi", ""));
             edtKategori.setText(getArguments().getString("kategori", ""));
-            String imageUrl = getArguments().getString("imageUrl", "");
-            if (!imageUrl.isEmpty()) {
+            if (existingImageUrl != null && !existingImageUrl.isEmpty()) {
                 imagePreview.setVisibility(View.VISIBLE);
-                Glide.with(this).load(imageUrl).into(imagePreview);
+                Glide.with(this).load(existingImageUrl).into(imagePreview);
             }
         }
 
-        btnPilihGambar.setOnClickListener(v -> openImageChooser());
-
+        btnPilihGambar.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
         btnKirim.setOnClickListener(v -> handleKirim());
 
         return view;
-    }
-
-    private void openImageChooser() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-        startActivityForResult(intent, 1001);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1001 && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            selectedImageUri = data.getData();
-            if (getContext() != null) {
-                try {
-                    getContext().getContentResolver().takePersistableUriPermission(selectedImageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                } catch (SecurityException e) {
-                    e.printStackTrace();
-                }
-                imagePreview.setVisibility(View.VISIBLE);
-                Glide.with(this).load(selectedImageUri).into(imagePreview);
-            }
-        }
     }
 
     private void handleKirim() {
@@ -123,48 +121,72 @@ public class fragment_berita_artikel extends Fragment {
             return;
         }
 
-        // Cek jika ada gambar BARU yang dipilih untuk di-upload
+        if (selectedImageUri == null && !isUpdate) {
+            Toast.makeText(getContext(), "Silakan pilih gambar untuk artikel baru", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        setLoading(true);
+
         if (selectedImageUri != null) {
-            uploadImageToCloudinary(judul, isi, kategori);
+            uploadImageToCloudinary();
         } else {
-            // Jika tidak ada gambar baru, kirim data dengan URL gambar yang sudah ada (jika mode edit)
-            if (listener != null) {
-                listener.onArtikelSubmitted(judul, isi, kategori, existingImageUrl, isUpdate, updatePosition);
-            }
-            getParentFragmentManager().popBackStack();
+            submitDataKeListener(existingImageUrl);
         }
     }
 
-    private void uploadImageToCloudinary(String judul, String isi, String kategori) {
-        Toast.makeText(getContext(), "Mengunggah gambar...", Toast.LENGTH_SHORT).show();
-        String uploadPreset = "masjidapp"; // GANTI DENGAN NAMA UNSIGNED PRESET ANDA
+    private void uploadImageToCloudinary() {
+        String judul = edtJudul.getText().toString().trim();
+        String fileName = judul.replaceAll("\\s+", "_") + "_" + System.currentTimeMillis();
 
         MediaManager.get().upload(selectedImageUri)
-                .unsigned(uploadPreset)
+                .option("public_id", "masjidapp/artikel/" + fileName)
                 .callback(new UploadCallback() {
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
                         if (getContext() == null) return;
                         String imageUrl = (String) resultData.get("secure_url");
-                        if (listener != null) {
-                            listener.onArtikelSubmitted(judul, isi, kategori, imageUrl, isUpdate, updatePosition);
-                        }
-                        getParentFragmentManager().popBackStack();
+                        submitDataKeListener(imageUrl);
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
                         if (getContext() != null) {
                             Toast.makeText(getContext(), "Upload gambar gagal: " + error.getDescription(), Toast.LENGTH_LONG).show();
+                            setLoading(false);
                         }
                     }
 
-                    @Override
-                    public void onStart(String requestId) {}
-                    @Override
-                    public void onProgress(String requestId, long bytes, long totalBytes) {}
-                    @Override
-                    public void onReschedule(String requestId, ErrorInfo error) {}
-                }).dispatch();
+                    @Override public void onStart(String requestId) {}
+                    @Override public void onProgress(String requestId, long bytes, long totalBytes) {}
+                    @Override public void onReschedule(String requestId, ErrorInfo error) {}
+                })
+                .dispatch();
+    }
+
+    private void submitDataKeListener(String finalImageUrl) {
+        String judul = edtJudul.getText().toString().trim();
+        String isi = edtIsi.getText().toString().trim();
+        String kategori = edtKategori.getText().toString().trim();
+
+        if (listener != null) {
+            listener.onArtikelSubmit(judul, isi, kategori, finalImageUrl, isUpdate, updatePosition);
+        }
+
+        if (getParentFragmentManager() != null) {
+            getParentFragmentManager().popBackStack();
+        }
+    }
+
+    private void setLoading(boolean isLoading) {
+        if (progressBar != null) {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        }
+        if (btnKirim != null) {
+            btnKirim.setEnabled(!isLoading);
+        }
+        if (btnPilihGambar != null) {
+            btnPilihGambar.setEnabled(!isLoading);
+        }
     }
 }

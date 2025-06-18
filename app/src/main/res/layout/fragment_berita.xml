@@ -10,9 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingBottom="80dp"> <!-- beri ruang agar konten tidak ketutupan tombol -->
+        android:paddingBottom="80dp">
 
-        <!--Trending-->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewTrending"
             android:layout_width="wrap_content"
@@ -39,7 +38,6 @@
             android:scrollbars="vertical" />
     </LinearLayout>
 
-    <!-- Tombol di kanan bawah -->
     <Button
         android:id="@+id/berita_add"
         android:layout_width="60dp"

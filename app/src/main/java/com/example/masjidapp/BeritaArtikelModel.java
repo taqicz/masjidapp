@@ -3,7 +3,7 @@ package com.example.masjidapp;
 import com.google.firebase.database.Exclude;
 
 public class BeritaArtikelModel {
-    private String id; // 1. Tambahkan ID untuk menampung key dari Firebase
+    private String id;
     private String title;
     private String content;
     private String kategori;
@@ -12,11 +12,9 @@ public class BeritaArtikelModel {
     private String authorName;
     private long timestamp;
 
-    // 2. Constructor kosong WAJIB ADA untuk Firebase
     public BeritaArtikelModel() {
     }
 
-    // Constructor untuk memudahkan membuat objek baru di kode Anda
     public BeritaArtikelModel(String title, String content, String kategori, String imageUrl, String authorUid, String authorName) {
         this.title = title;
         this.content = content;
@@ -26,9 +24,8 @@ public class BeritaArtikelModel {
         this.authorName = authorName;
     }
 
-    // Getter dan Setter
 
-    @Exclude // Anotasi ini agar Firebase tidak mencoba menyimpan ID ini dua kali
+    @Exclude
     public String getId() {
         return id;
     }
